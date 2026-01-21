@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { UsersService, User, UpdateUser, AssignRole } from '../../../core/services/users.service';
+import { UserService, User, UpdateUser, AssignRole } from '../../../core/services/user.service';
 import { Role } from '../../../core/services/roles.service';
 
 @Component({
@@ -16,7 +16,7 @@ export class UserEditComponent implements OnInit {
 
     constructor(
         private fb: FormBuilder,
-        private usersService: UsersService,
+        private userService: UserService,
         public dialogRef: MatDialogRef<UserEditComponent>,
         @Inject(MAT_DIALOG_DATA) public data: { user: User, roles: Role[] }
     ) {
@@ -38,14 +38,14 @@ export class UserEditComponent implements OnInit {
                 email: this.userForm.value.email
             };
 
-            this.usersService.updateUser(this.data.user.id, updateUser).subscribe({
+            this.userService.updateUser(this.data.user.id, updateUser).subscribe({
                 next: () => {
                     // If role changed, update role
                     if (this.userForm.value.role !== this.data.user.role) {
                         const assignRole: AssignRole = {
                             roleName: this.userForm.value.role
                         };
-                        this.usersService.assignRole(this.data.user.id, assignRole).subscribe({
+                        this.userService.assignRole(this.data.user.id, assignRole).subscribe({
                             next: () => {
                                 this.loading = false;
                                 this.dialogRef.close(true);

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
-import { UsersService, User } from '../../../core/services/users.service';
+import { UserService, User } from '../../../core/services/user.service';
 import { RolesService, Role } from '../../../core/services/roles.service';
 import { UserEditComponent } from '../user-edit/user-edit.component';
 
@@ -17,7 +17,7 @@ export class UserListComponent implements OnInit {
     loading = false;
 
     constructor(
-        private usersService: UsersService,
+        private userService: UserService,
         private rolesService: RolesService,
         private dialog: MatDialog
     ) { }
@@ -29,7 +29,7 @@ export class UserListComponent implements OnInit {
 
     loadUsers() {
         this.loading = true;
-        this.usersService.getAllUsers().subscribe({
+        this.userService.getAllUsers().subscribe({
             next: (users) => {
                 this.dataSource.data = users;
                 this.loading = false;
@@ -67,7 +67,7 @@ export class UserListComponent implements OnInit {
 
     deleteUser(user: User) {
         if (confirm(`Are you sure you want to delete ${user.fullName}?`)) {
-            this.usersService.deleteUser(user.id).subscribe({
+            this.userService.deleteUser(user.id).subscribe({
                 next: () => {
                     this.loadUsers();
                 },

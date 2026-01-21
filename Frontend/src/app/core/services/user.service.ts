@@ -9,8 +9,21 @@ export interface User {
     userName: string;
     email: string;
     fullName: string;
-    roles: string[];
-    isActive: boolean;
+    roles?: string[]; // Made optional/compatible with both
+    role?: string;    // Added from UsersService
+    isActive?: boolean;
+    emailConfirmed?: boolean;
+    lockoutEnabled?: boolean;
+    lockoutEnd?: Date;
+}
+
+export interface UpdateUser {
+    fullName: string;
+    email: string;
+}
+
+export interface AssignRole {
+    roleName: string;
 }
 
 @Injectable({
@@ -33,11 +46,15 @@ export class UserService {
         return this.http.get<PaginatedResult<User>>(this.apiUrl, { params });
     }
 
+    getAllUsers(): Observable<User[]> {
+        return this.http.get<User[]>(this.apiUrl);
+    }
+
     getUserById(id: string): Observable<User> {
         return this.http.get<User>(`${this.apiUrl}/${id}`);
     }
 
-    updateUser(id: string, user: any): Observable<any> {
+    updateUser(id: string, user: UpdateUser | any): Observable<any> {
         return this.http.put(`${this.apiUrl}/${id}`, user);
     }
 
@@ -45,7 +62,10 @@ export class UserService {
         return this.http.delete(`${this.apiUrl}/${id}`);
     }
 
-    assignRole(userId: string, role: string): Observable<any> {
-        return this.http.post(`${this.apiUrl}/${userId}/roles`, { role });
+    assignRole(userId: string, role: AssignRole | string): Observable<any> {
+        // Backend might expect different formats, supporting both for safety
+        const body = typeof role === 'string' ? { role } : role;
+        const endpoint = typeof role === 'string' ? `${this.apiUrl}/${userId}/roles` : `${this.apiUrl}/${userId}/role`;
+        return this.http.put(endpoint, body);
     }
 }
