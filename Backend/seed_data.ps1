@@ -1,4 +1,5 @@
-$baseUrl = "https://ana.runasp.net/api/seed"
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+$baseUrl = "http://ana.runasp.net/api/seed"
 
 Write-Host "Seeding Users..."
 $response = Invoke-RestMethod -Uri "$baseUrl/users" -Method Post
