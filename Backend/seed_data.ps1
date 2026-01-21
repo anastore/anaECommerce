@@ -1,4 +1,4 @@
-$baseUrl = "http://localhost:5001/api/seed"
+$baseUrl = "https://ana.runasp.net/api/seed"
 
 Write-Host "Seeding Users..."
 $response = Invoke-RestMethod -Uri "$baseUrl/users" -Method Post
