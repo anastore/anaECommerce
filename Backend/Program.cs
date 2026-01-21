@@ -27,7 +27,7 @@ builder.Services.AddCors(options =>
             }
             else
             {
-                policy.WithOrigins("https://ana.runasp.net")
+                policy.WithOrigins("https://anaecommerce.vercel.app")
                       .AllowAnyMethod()
                       .AllowAnyHeader();
             }
@@ -84,7 +84,7 @@ builder.Services.AddAuthentication(options =>
 .AddJwtBearer(options =>
 {
     options.SaveToken = true;
-    options.RequireHttpsMetadata = builder.Environment.IsProduction();
+    options.RequireHttpsMetadata = false; // Set to false to support HTTP-only deployment on MonsterASP
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
