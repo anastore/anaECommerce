@@ -1,0 +1,25 @@
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.spacer {
+    flex: 1 1 auto;
+}
+
+.lang-text {
+    margin-left: 0px;
+    font-size: 0.9rem;
+}
+
+button {
+    margin-left: 10px;
+}

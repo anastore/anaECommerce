@@ -1,0 +1,24 @@
+<mat-toolbar color="primary" class="header">
+    <mat-toolbar-row>
+        <span class="title">{{ 'HEADER.TITLE' | translate }}</span>
+        <span class="spacer"></span>
+
+        <button mat-icon-button (click)="toggleLanguage()" [matTooltip]="'HEADER.LANGUAGE' | translate">
+            <mat-icon>language</mat-icon>
+            <span class="lang-text">{{ currentLanguage.toUpperCase() }}</span>
+        </button>
+
+        <button mat-icon-button *ngIf="isLoggedIn" routerLink="/profile" [matTooltip]="'HEADER.PROFILE' | translate">
+            <mat-icon>account_circle</mat-icon>
+        </button>
+
+        <button mat-raised-button *ngIf="!isLoggedIn" (click)="login()">
+            {{ 'HEADER.LOGIN' | translate }}
+        </button>
+
+
+        <button mat-raised-button *ngIf="isLoggedIn" (click)="logout()">
+            {{ 'HEADER.LOGOUT' | translate }}
+        </button>
+    </mat-toolbar-row>
+</mat-toolbar>

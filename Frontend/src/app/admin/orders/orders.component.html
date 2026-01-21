@@ -1,0 +1,84 @@
+<div class="p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">{{ 'ADMIN.ORDERS.TITLE' | translate }}</h1>
+
+        <div>
+            <select (change)="filterByStatus($event.target)" class="form-input w-48">
+                <option value="all">{{ 'ADMIN.ORDERS.STATUSES.ALL' | translate }}</option>
+                <option *ngFor="let status of orderStatuses" [value]="status.value">{{ status.key | translate }}
+                </option>
+            </select>
+        </div>
+    </div>
+
+    <div class="card overflow-hidden">
+        <div *ngIf="loading" class="flex justify-center py-10">
+            <div class="spinner"></div>
+        </div>
+
+        <div *ngIf="!loading && orders.length === 0" class="text-center py-10 text-gray-500">
+            {{ 'ADMIN.ORDERS.EMPTY' | translate }}
+        </div>
+
+        <div *ngIf="!loading && orders.length > 0" class="overflow-x-auto">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>{{ 'ADMIN.ORDERS.ORDER_NO' | translate }}</th>
+                        <th>{{ 'ADMIN.ORDERS.CUSTOMER' | translate }}</th>
+                        <th>{{ 'ADMIN.ORDERS.DATE' | translate }}</th>
+                        <th>{{ 'ADMIN.ORDERS.ITEMS' | translate }}</th>
+                        <th>{{ 'ADMIN.ORDERS.TOTAL' | translate }}</th>
+                        <th>{{ 'ADMIN.ORDERS.STATUS' | translate }}</th>
+                        <th>{{ 'ADMIN.USERS.ACTIONS' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let order of orders">
+                        <td class="font-medium text-primary-600">#{{ order.orderNumber }}</td>
+                        <td>{{ order.userName }}</td>
+                        <td>{{ order.orderDate | date:'mediumDate' }}</td>
+                        <td>
+                            <div class="flex flex-col text-sm">
+                                <span *ngFor="let item of order.items">
+                                    {{item.productName}} (x{{item.quantity}})
+                                </span>
+                            </div>
+                        </td>
+                        <td class="font-bold">${{ order.totalAmount | number:'1.2-2' }}</td>
+                        <td>
+                            <span class="px-2 py-1 rounded-full text-xs font-semibold"
+                                [ngClass]="getStatusColor(order.status)">
+                                {{ getStatusLabel(order.status) | translate }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <select [value]="order.status" (change)="updateStatus(order, $any($event.target).value)"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded p-1">
+                                    <option *ngFor="let s of orderStatuses" [value]="s.value">{{ s.key | translate }}
+                                    </option>
+                                </select>
+                                <button class="text-red-600 hover:text-red-800 ml-2" (click)="deleteOrder(order.id)">
+                                    <mat-icon>delete</mat-icon>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div *ngIf="!loading && totalPages > 1" class="flex justify-center p-4 gap-2">
+            <button class="btn btn-secondary text-sm" [disabled]="currentPage === 1"
+                (click)="changePage(currentPage - 1)">{{ 'COMMON.PAGINATION.PREVIOUS' | translate }}</button>
+            <span class="px-3 py-1 bg-gray-100 rounded self-center">
+                {{ 'COMMON.PAGINATION.PAGE_X_OF_Y' | translate:{current: currentPage, total: totalPages} }}
+                {{ 'COMMON.PAGINATION.TOTAL' | translate }}: {{totalCount}}
+            </span>
+            <button class="btn btn-secondary text-sm" [disabled]="currentPage === totalPages"
+                (click)="changePage(currentPage + 1)">{{ 'COMMON.PAGINATION.NEXT' | translate }}</button>
+        </div>
+    </div>
+</div>

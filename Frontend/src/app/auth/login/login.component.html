@@ -1,0 +1,33 @@
+<div class="login-container" style="background-image: url('assets/login_background.png');">
+  <mat-card class="login-card">
+    <mat-card-header>
+      <mat-card-title>{{ 'AUTH.LOGIN' | translate }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'AUTH.EMAIL' | translate }}</mat-label>
+          <input matInput formControlName="email" [placeholder]="'AUTH.PLACEHOLDERS.EMAIL' | translate">
+          <mat-error *ngIf="loginForm.get('email')?.invalid">{{ 'AUTH.ERRORS.EMAIL_INVALID' | translate }}</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'AUTH.PASSWORD' | translate }}</mat-label>
+          <input matInput [type]="hide ? 'password' : 'text'" formControlName="password">
+          <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'"
+            [attr.aria-pressed]="hide" type="button">
+            <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+          </button>
+          <mat-error *ngIf="loginForm.get('password')?.invalid">{{ 'AUTH.ERRORS.PASSWORD_REQUIRED' | translate
+            }}</mat-error>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" type="submit" [disabled]="loginForm.invalid" class="full-width">{{
+          'AUTH.LOGIN' | translate }}</button>
+      </form>
+    </mat-card-content>
+    <mat-card-actions align="end">
+      <a routerLink="/register">{{ 'AUTH.DONT_HAVE_ACCOUNT' | translate }}</a>
+    </mat-card-actions>
+  </mat-card>
+</div>

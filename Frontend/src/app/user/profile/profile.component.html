@@ -1,0 +1,233 @@
+<div class="container mx-auto p-4 md:p-8 animate-fade-in">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Profile Sidebar -->
+        <div class="lg:col-span-1">
+            <mat-card class="overflow-hidden border-none shadow-premium rounded-2xl">
+                <div class="h-32 bg-gradient-to-r from-primary-600 to-primary-400"></div>
+                <div class="px-6 pb-6 -mt-16 text-center">
+                    <div class="inline-block p-1 bg-white rounded-full shadow-lg relative">
+                        <img [src]="userProfile?.profilePictureUrl || 'assets/images/default-avatar.png'"
+                            class="w-32 h-32 rounded-full object-cover border-4 border-white" alt="Avatar">
+                        <button mat-mini-fab color="basic"
+                            class="absolute bottom-0 right-0 scale-75 shadow-md hover:bg-gray-50"
+                            (click)="fileInput.click()">
+                            <mat-icon>photo_camera</mat-icon>
+                        </button>
+                        <input #fileInput type="file" class="hidden" (change)="onFileSelected($event)" accept="image/*">
+                    </div>
+                    <h2 class="mt-4 text-2xl font-bold text-gray-800">{{ userProfile?.fullName }}</h2>
+                    <p class="text-gray-500">{{ userProfile?.email }}</p>
+
+                    <div class="mt-6 flex justify-around border-t pt-6">
+                        <div class="text-center">
+                            <span class="block text-xl font-bold text-primary-600">{{ userProfile?.addresses?.length ||
+                                0 }}</span>
+                            <span class="text-xs text-gray-400 uppercase tracking-wider">Addresses</span>
+                        </div>
+                        <div class="text-center border-l border-r px-4">
+                            <span class="block text-xl font-bold text-primary-600">{{
+                                userProfile?.paymentMethods?.length || 0 }}</span>
+                            <span class="text-xs text-gray-400 uppercase tracking-wider">Methods</span>
+                        </div>
+                        <div class="text-center">
+                            <span class="block text-xl font-bold text-primary-600">0</span>
+                            <span class="text-xs text-gray-400 uppercase tracking-wider">Credits</span>
+                        </div>
+                    </div>
+                </div>
+            </mat-card>
+        </div>
+
+        <!-- Main Content -->
+        <div class="lg:col-span-2 space-y-8">
+            <!-- Basic Info -->
+            <mat-card class="p-6 border-none shadow-premium rounded-2xl">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-bold text-gray-800 flex items-center">
+                        <mat-icon class="mr-2 text-primary-500">person</mat-icon>
+                        Personal Information
+                        <button mat-icon-button class="ml-2 scale-75 text-gray-400 hover:text-primary-600"
+                            (click)="toggleEdit()">
+                            <mat-icon>{{ isEditMode ? 'close' : 'edit' }}</mat-icon>
+                        </button>
+                    </h3>
+                    <button *ngIf="isEditMode" mat-flat-button color="primary" (click)="saveProfile()"
+                        [disabled]="profileForm.invalid">
+                        Save Changes
+                    </button>
+                </div>
+
+                <div *ngIf="!isEditMode" class="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-12 animate-fade-in">
+                    <div>
+                        <p class="text-xs text-gray-400 uppercase tracking-wider mb-1">Full Name</p>
+                        <p class="text-base font-medium text-gray-800">{{ userProfile?.fullName || '---' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-400 uppercase tracking-wider mb-1">Phone Number</p>
+                        <p class="text-base font-medium text-gray-800" dir="ltr">{{ userProfile?.phoneNumber || '---' }}
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-400 uppercase tracking-wider mb-1">Birth Date</p>
+                        <p class="text-base font-medium text-gray-800">{{ (userProfile?.birthDate | date:'mediumDate')
+                            || '---' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-400 uppercase tracking-wider mb-1">Gender</p>
+                        <p class="text-base font-medium text-gray-800">{{ userProfile?.gender || '---' }}</p>
+                    </div>
+                </div>
+
+                <form *ngIf="isEditMode" [formGroup]="profileForm"
+                    class="grid grid-cols-1 md:grid-cols-2 gap-6 animate-slide-in">
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Full Name</mat-label>
+                        <input matInput formControlName="fullName">
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>{{ 'PROFILE.PHONE' | translate }}</mat-label>
+                        <button type="button" mat-button matPrefix [matMenuTriggerFor]="countryMenu"
+                            class="px-2 min-w-0 flex items-center gap-1 border-r mr-2">
+                            <span class="font-bold text-gray-700">{{ profileForm.get('countryCode')?.value }}</span>
+                            <mat-icon class="scale-75 text-gray-400">arrow_drop_down</mat-icon>
+                        </button>
+                        <mat-menu #countryMenu="matMenu">
+                            <button mat-menu-item *ngFor="let c of countryCodes" (click)="setCountryCode(c.code)">
+                                <span class="mr-2">{{c.flag}}</span> {{c.name}} ({{c.code}})
+                            </button>
+                        </mat-menu>
+                        <input matInput formControlName="phoneNumber">
+                        <mat-icon matSuffix class="text-gray-400">phone</mat-icon>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Birth Date</mat-label>
+                        <input matInput [matDatepicker]="picker" formControlName="birthDate">
+                        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                        <mat-datepicker #picker></mat-datepicker>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="w-full">
+                        <mat-label>Gender</mat-label>
+                        <mat-select formControlName="gender">
+                            <mat-option value="Male">Male</mat-option>
+                            <mat-option value="Female">Female</mat-option>
+                            <mat-option value="Other">Other</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </form>
+            </mat-card>
+
+            <!-- Addresses -->
+            <mat-card class="p-6 border-none shadow-premium rounded-2xl">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-bold text-gray-800 flex items-center">
+                        <mat-icon class="mr-2 text-primary-500">location_on</mat-icon>
+                        My Addresses
+                    </h3>
+                    <button mat-button color="primary" (click)="showAddressForm = !showAddressForm">
+                        {{ showAddressForm ? 'Cancel' : '+ Add Address' }}
+                    </button>
+                </div>
+
+                <!-- Add Address Form -->
+                <div *ngIf="showAddressForm" class="mb-8 p-4 bg-gray-50 rounded-xl animate-slide-in">
+                    <form [formGroup]="addressForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Address Type (Home, Work, etc.)</mat-label>
+                            <input matInput formControlName="addressType">
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Country</mat-label>
+                            <input matInput formControlName="country">
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>State / Province</mat-label>
+                            <input matInput formControlName="state">
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>City</mat-label>
+                            <input matInput formControlName="city">
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" class="w-full md:col-span-2">
+                            <mat-label>Street Address</mat-label>
+                            <textarea matInput formControlName="streetAddress"></textarea>
+                        </mat-form-field>
+                        <div class="md:col-span-2 flex items-center justify-between">
+                            <mat-checkbox formControlName="isDefault">Set as default address</mat-checkbox>
+                            <button mat-raised-button color="primary" (click)="addAddress()"
+                                [disabled]="addressForm.invalid">
+                                Save Address
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Address List -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div *ngFor="let addr of userProfile?.addresses"
+                        class="p-4 border rounded-xl hover:border-primary-300 transition-colors relative group">
+                        <span *ngIf="addr.isDefault"
+                            class="absolute top-2 right-2 px-2 py-0.5 bg-green-100 text-green-700 text-[10px] uppercase font-bold rounded">
+                            Default
+                        </span>
+                        <div class="flex items-center mb-2">
+                            <mat-icon class="text-gray-400 scale-75 mr-1">
+                                {{ addr.addressType.toLowerCase() === 'home' ? 'home' : 'work' }}
+                            </mat-icon>
+                            <span class="font-bold text-gray-700">{{ addr.addressType }}</span>
+                        </div>
+                        <p class="text-sm text-gray-600 leading-relaxed">
+                            {{ addr.streetAddress }}<br>
+                            {{ addr.city }}, {{ addr.state }}<br>
+                            {{ addr.country }}
+                        </p>
+                        <div class="mt-4 flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button mat-icon-button color="warn" (click)="deleteAddress(addr.id)">
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        </div>
+                    </div>
+                    <div *ngIf="userProfile?.addresses?.length === 0"
+                        class="md:col-span-2 py-12 text-center text-gray-400">
+                        <mat-icon class="text-5xl mb-2">location_off</mat-icon>
+                        <p>No addresses found.</p>
+                    </div>
+                </div>
+            </mat-card>
+
+            <!-- Payment Methods -->
+            <mat-card class="p-6 border-none shadow-premium rounded-2xl">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-bold text-gray-800 flex items-center">
+                        <mat-icon class="mr-2 text-primary-500">credit_card</mat-icon>
+                        Payment Methods
+                    </h3>
+                    <button mat-button color="primary">
+                        + Add Card (Stripe)
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div *ngFor="let method of userProfile?.paymentMethods"
+                        class="p-6 bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl text-white shadow-xl relative overflow-hidden h-40">
+                        <div class="absolute top-0 right-0 p-4">
+                            <span class="text-xl font-bold italic">{{ method.cardBrand }}</span>
+                        </div>
+                        <div class="mt-12">
+                            <p class="text-lg tracking-widest font-mono">**** **** **** {{ method.last4 }}</p>
+                        </div>
+                        <div class="mt-4 flex justify-between items-end">
+                            <span class="text-xs text-gray-400 uppercase">Expires: --/--</span>
+                            <mat-icon *ngIf="method.isDefault" class="text-yellow-400">star</mat-icon>
+                        </div>
+                    </div>
+                    <div *ngIf="userProfile?.paymentMethods?.length === 0"
+                        class="md:col-span-2 py-8 text-center text-gray-400">
+                        <p>No payment methods saved.</p>
+                    </div>
+                </div>
+            </mat-card>
+        </div>
+    </div>
+</div>

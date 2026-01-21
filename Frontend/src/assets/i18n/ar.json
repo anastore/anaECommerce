@@ -1,0 +1,238 @@
+{
+    "HEADER": {
+        "TITLE": "أنا للتجارة الإلكترونية",
+        "LANGUAGE": "اللغة",
+        "LOGOUT": "تسجيل الخروج",
+        "LOGIN": "تسجيل الدخول",
+        "PROFILE": "الملف الشخصي"
+    },
+    "SIDEBAR": {
+        "DASHBOARD": "لوحة التحكم",
+        "CATEGORIES": "الفئات",
+        "PRODUCTS": "المنتجات",
+        "SUBCATEGORIES": "التصنيفات الفرعية",
+        "BRANDS": "العلامات التجارية",
+        "ORDERS": "الطلبات",
+        "USERS": "المستخدمون",
+        "SETTINGS": "الإعدادات"
+    },
+    "HOME": {
+        "WELCOME": "مرحبا بك في أنا للتجارة الإلكترونية",
+        "SUBTITLE": "اكتشف منتجات رائعة بأسعار لا تقبل المنافسة",
+        "SHOP_NOW": "تسوق الآن",
+        "FILTERS": {
+            "TITLE": "تصفية المنتجات",
+            "CATEGORY": "الفئة",
+            "SUBCATEGORY": "الفئة الفرعية",
+            "BRAND": "العلامة التجارية",
+            "ALL_CATEGORIES": "جميع الفئات",
+            "ALL_SUBCATEGORIES": "جميع الفئات الفرعية",
+            "ALL_BRANDS": "جميع العلامات التجارية"
+        },
+        "FEATURED_PRODUCTS": "المنتجات المميزة",
+        "PRODUCT": {
+            "ADD_TO_CART": "أضف إلى السلة",
+            "IN_STOCK": "متوفر",
+            "OUT_OF_STOCK": "غير متوفر",
+            "BRAND": "العلامة التجارية"
+        },
+        "NO_PRODUCTS": "لم يتم العثور على منتجات",
+        "SPECIAL_OFFER": "عرض خاص!",
+        "OFFER_TEXT": "احصل على خصم يصل إلى 50٪ على المنتجات المختارة",
+        "SHOP_DEALS": "تسوق العروض"
+    },
+    "COMMON": {
+        "PAGINATION": {
+            "PREVIOUS": "السابق",
+            "NEXT": "التالي",
+            "PAGE_X_OF_Y": "صفحة {{current}} من {{total}}",
+            "TOTAL": "الإجمالي"
+        },
+        "ACTIONS": {
+            "SAVE": "حفظ",
+            "CANCEL": "إلغاء",
+            "EDIT": "تعديل",
+            "DELETE": "حذف",
+            "CREATE": "إنشاء",
+            "ADD": "إضافة",
+            "VIEW": "عرض",
+            "SEARCH": "بحث"
+        },
+        "LOADING": "جاري التحميل...",
+        "STATUS": "الحالة"
+    },
+    "AUTH": {
+        "LOGIN": "تسجيل الدخول",
+        "REGISTER": "التسجيل",
+        "EMAIL": "البريد الإلكتروني",
+        "PASSWORD": "كلمة المرور",
+        "FULL_NAME": "الاسم الكامل",
+        "ROLE": "الدور",
+        "DONT_HAVE_ACCOUNT": "ليس لديك حساب؟ سجل",
+        "ALREADY_HAVE_ACCOUNT": "لديك حساب بالفعل؟ تسجيل الدخول",
+        "PLACEHOLDERS": {
+            "EMAIL": "مثال: pat@example.com",
+            "FULL_NAME": "مثال: John Doe"
+        },
+        "ERRORS": {
+            "EMAIL_INVALID": "يرجى إدخال بريد إلكتروني صالح",
+            "PASSWORD_REQUIRED": "كلمة المرور مطلوبة",
+            "FULL_NAME_REQUIRED": "الاسم الكامل مطلوب"
+        },
+        "ROLES": {
+            "CLIENT": "عميل",
+            "MARKET_USER": "مستخدم سوق",
+            "ADMIN": "مسؤول"
+        },
+        "STEPS": {
+            "ACCOUNT": "معلومات الحساب",
+            "SHIPPING": "تفاصيل الشحن",
+            "NEXT_SHIPPING": "التالي: تفاصيل الشحن",
+            "CREATE_ACCOUNT": "إنشاء حساب"
+        },
+        "ONBOARDING_SUBTITLE": "انضم إلى منصتنا الرائعة للتجارة الإلكترونية"
+    },
+    "ADMIN": {
+        "CATEGORIES": {
+            "TITLE": "الفئات",
+            "NEW": "فئة جديدة",
+            "EDIT": "تعديل الفئة",
+            "NAME": "الاسم",
+            "DESCRIPTION": "الوصف",
+            "PRODUCTS_COUNT": "المنتجات",
+            "SUB_COUNT": "{{count}} فئات فرعية",
+            "EMPTY": "لم يتم العثور على فئات. قم بإنشاء الفئة الأولى!",
+            "PLACEHOLDERS": {
+                "NAME": "اسم الفئة",
+                "DESC": "وصف اختياري"
+            }
+        },
+        "SUBCATEGORIES": {
+            "TITLE": "الفئات الفرعية",
+            "NEW": "فئة فرعية جديدة",
+            "EDIT": "تعديل الفئة الفرعية",
+            "NAME": "الاسم",
+            "DESCRIPTION": "الوصف",
+            "CATEGORY": "الفئة",
+            "BRANDS_COUNT": "العلامات التجارية",
+            "BRAND_COUNT": "{{count}} علامات تجارية",
+            "EMPTY": "لم يتم العثور على فئات فرعية.",
+            "PLACEHOLDERS": {
+                "NAME": "اسم الفئة الفرعية",
+                "DESC": "وصف اختياري",
+                "SELECT_CAT": "اختر الفئة"
+            }
+        },
+        "BRANDS": {
+            "TITLE": "العلامات التجارية",
+            "NEW": "علامة تجارية جديدة",
+            "EDIT": "تعديل العلامة التجارية",
+            "NAME": "الاسم",
+            "DESCRIPTION": "الوصف",
+            "SUBCATEGORY": "الفئة الفرعية",
+            "CATEGORY": "الفئة",
+            "EMPTY": "لم يتم العثور على علامات تجارية.",
+            "PLACEHOLDERS": {
+                "NAME": "اسم العلامة التجارية",
+                "DESC": "وصف اختياري",
+                "SELECT_SUB": "اختر الفئة الفرعية"
+            }
+        },
+        "PRODUCTS": {
+            "TITLE": "المنتجات",
+            "NEW": "منتج جديد",
+            "EDIT": "تعديل المنتج",
+            "NAME": "الاسم",
+            "PRICE": "السعر",
+            "STOCK": "المخزون",
+            "DESCRIPTION": "الوصف",
+            "BRAND": "العلامة التجارية",
+            "IMAGE": "صورة المنتج",
+            "UPLOAD": "رفع صورة",
+            "EMPTY": "لم يتم العثور على منتجات.",
+            "PLACEHOLDERS": {
+                "NAME": "اسم المنتج",
+                "PRICE": "0.00",
+                "STOCK": "0",
+                "DESC": "وصف المنتج",
+                "SELECT_BRAND": "اختر العلامة التجارية",
+                "SEARCH": "البحث عن المنتجات..."
+            }
+        },
+        "ORDERS": {
+            "TITLE": "الطلبات",
+            "ORDER_NO": "رقم الطلب #",
+            "CUSTOMER": "العميل",
+            "DATE": "التاريخ",
+            "TOTAL": "الإجمالي",
+            "STATUS": "الحالة",
+            "DETAILS": "تفاصيل الطلب",
+            "ITEMS": "العناصر",
+            "PRODUCT": "المنتج",
+            "QTY": "الكمية",
+            "UNIT_PRICE": "سعر الوحدة",
+            "SEARCH": "البحث عن الطلبات...",
+            "STATUSES": {
+                "PENDING": "قيد الانتظار",
+                "PROCESSING": "قيد المعالجة",
+                "SHIPPED": "تم الشحن",
+                "DELIVERED": "تم التوصيل",
+                "CANCELLED": "ملغي",
+                "ALL": "جميع الحالات"
+            }
+        },
+        "USERS": {
+            "TITLE": "إدارة المستخدمين",
+            "FULL_NAME": "الاسم الكامل",
+            "EMAIL": "البريد الإلكتروني",
+            "ROLE": "الدور",
+            "ACTIONS": "الإجراءات",
+            "SEARCH": "بحث",
+            "SEARCH_PLACEHOLDER": "البحث عن المستخدمين...",
+            "EDIT": "تعديل المستخدم",
+            "DELETE": "حذف المستخدم",
+            "DELETE_CONFIRM": "هل أنت متأكد أنك تريد حذف هذا المستخدم؟"
+        },
+        "DASHBOARD": {
+            "TITLE": "لوحة التحكم",
+            "OVERVIEW": "نظرة عامة على منصة التجارة الإلكترونية الخاصة بك",
+            "TOTAL_ORDERS": "إجمالي الطلبات",
+            "TOTAL_REVENUE": "إجمالي الإيرادات",
+            "TOTAL_PRODUCTS": "إجمالي المنتجات",
+            "ACTIVE_CUSTOMERS": "العملاء النشطون",
+            "REGISTERED_USERS": "المستخدمون المسجلون",
+            "TOTAL_CATEGORIES": "إجمالي الفئات",
+            "RECENT_ORDERS": "الطلبات الأخيرة",
+            "REVENUE_CHART": "الإيرادات بمرور الوقت",
+            "QUICK_ACTIONS": "إجراءات سريعة",
+            "ADD_PRODUCT": "إضافة منتج",
+            "ADD_CATEGORY": "إضافة فئة",
+            "VIEW_ORDERS": "عرض الطلبات",
+            "SYSTEM_STATUS": "حالة النظام",
+            "BACKEND_STATUS": "حالة الواجهة الخلفية",
+            "ONLINE": "متصل",
+            "DATABASE": "قاعدة البيانات",
+            "CONNECTED": "متصل",
+            "VERSION": "الإصدار"
+        }
+    },
+    "PROFILE": {
+        "TITLE": "ملفي الشخصي",
+        "PERSONAL_INFO": "المعلومات الشخصية",
+        "ADDRESSES": "العناوين",
+        "PAYMENTS": "طرق الدفع",
+        "FULL_NAME": "الاسم الكامل",
+        "PHONE": "رقم الهاتف",
+        "BIRTHDATE": "تاريخ الميلاد",
+        "GENDER": "الجنس",
+        "PICTURE": "رابط صورة الملف الشخصي",
+        "SAVE": "حفظ التغييرات",
+        "ADD_ADDRESS": "إضافة عنوان",
+        "STREET": "عنوان الشارع",
+        "CITY": "المدينة",
+        "STATE": "الولاية/المحافظة",
+        "COUNTRY": "الدولة",
+        "DEFAULT_ADDR": "العنوان الافتراضي",
+        "ADD_PAYMENT": "إضافة طريقة دفع"
+    }
+}

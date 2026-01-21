@@ -1,0 +1,156 @@
+<div class="min-h-screen bg-gray-50">
+    <!-- Hero Banner -->
+    <section class="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-20">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-5xl font-bold mb-4 animate-fade-in">{{ 'HOME.WELCOME' | translate }}</h1>
+            <p class="text-xl mb-8 animate-slide-in">{{ 'HOME.SUBTITLE' | translate }}</p>
+            <button class="btn btn-primary bg-white text-primary-600 hover:bg-gray-100 px-8 py-3 text-lg">
+                {{ 'HOME.SHOP_NOW' | translate }}
+            </button>
+        </div>
+    </section>
+
+    <!-- Dynamic Filters Section -->
+    <section class="container mx-auto px-4 py-8">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
+            <h2 class="text-xl font-bold mb-6 text-gray-800 flex items-center gap-2">
+                <mat-icon class="text-primary-600">filter_list</mat-icon>
+                {{ 'HOME.FILTERS.TITLE' | translate }}
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Category Select -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">{{
+                        'HOME.FILTERS.CATEGORY' | translate }}</label>
+                    <div class="relative">
+                        <select [ngModel]="selectedCategoryId" (ngModelChange)="onCategoryChange($event)"
+                            class="w-full ps-4 pe-10 py-3 bg-gray-50 border-0 rounded-xl text-gray-700 font-medium focus:ring-2 focus:ring-primary-500 appearance-none transition-all">
+                            <option [ngValue]="undefined">{{ 'HOME.FILTERS.ALL_CATEGORIES' | translate }}</option>
+                            <option *ngFor="let cat of categories" [ngValue]="cat.id">{{ cat.name }}</option>
+                        </select>
+                        <div class="absolute inset-y-0 end-0 flex items-center pe-3 pointer-events-none text-gray-400">
+                            <mat-icon>expand_more</mat-icon>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SubCategory Select -->
+                <div [class.opacity-50]="!selectedCategoryId">
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">{{
+                        'HOME.FILTERS.SUBCATEGORY' | translate }}</label>
+                    <div class="relative">
+                        <select [ngModel]="selectedSubCategoryId" (ngModelChange)="onSubCategoryChange($event)"
+                            [disabled]="!selectedCategoryId"
+                            class="w-full ps-4 pe-10 py-3 bg-gray-50 border-0 rounded-xl text-gray-700 font-medium focus:ring-2 focus:ring-secondary-500 appearance-none transition-all disabled:cursor-not-allowed">
+                            <option [ngValue]="undefined">{{ 'HOME.FILTERS.ALL_SUBCATEGORIES' | translate }}</option>
+                            <option *ngFor="let sub of subCategories" [ngValue]="sub.id">{{ sub.name }}</option>
+                        </select>
+                        <div class="absolute inset-y-0 end-0 flex items-center pe-3 pointer-events-none text-gray-400">
+                            <mat-icon>expand_more</mat-icon>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Brand Select -->
+                <div [class.opacity-50]="!selectedSubCategoryId">
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">{{
+                        'HOME.FILTERS.BRAND' | translate }}</label>
+                    <div class="relative">
+                        <select [ngModel]="selectedBrandId" (ngModelChange)="onBrandChange($event)"
+                            [disabled]="!selectedSubCategoryId"
+                            class="w-full ps-4 pe-10 py-3 bg-gray-50 border-0 rounded-xl text-gray-700 font-medium focus:ring-2 focus:ring-indigo-500 appearance-none transition-all disabled:cursor-not-allowed">
+                            <option [ngValue]="undefined">{{ 'HOME.FILTERS.ALL_BRANDS' | translate }}</option>
+                            <option *ngFor="let brand of brands" [ngValue]="brand.id">{{ brand.name }}</option>
+                        </select>
+                        <div class="absolute inset-y-0 end-0 flex items-center pe-3 pointer-events-none text-gray-400">
+                            <mat-icon>expand_more</mat-icon>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section class="container mx-auto px-4 py-8">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-3xl font-bold text-gray-800">{{ 'HOME.FEATURED_PRODUCTS' | translate }}</h2>
+            <p class="text-gray-600">{{ 'COMMON.PAGINATION.PAGE_X_OF_Y' | translate:{current: currentPage, total:
+                totalPages} }}</p>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div *ngIf="loading" class="flex justify-center items-center py-20">
+            <div class="spinner"></div>
+        </div>
+
+        <!-- Products Grid -->
+        <div *ngIf="!loading" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div *ngFor="let product of products"
+                class="card group cursor-pointer transform hover:scale-105 transition-transform duration-200">
+                <div class="relative overflow-hidden rounded-t-lg">
+                    <img [src]="getImageUrl(product)" [alt]="product.name"
+                        class="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300">
+                    <div
+                        class="absolute top-2 end-2 bg-primary-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-sm">
+                        ${{ product.price.toFixed(2) }}
+                    </div>
+                </div>
+                <div class="p-4">
+                    <p class="text-xs text-gray-500 mb-1">{{ product.brandName }}</p>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2 truncate">{{ product.name }}</h3>
+                    <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ product.description }}</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm" [class.text-green-600]="product.stock > 0"
+                            [class.text-red-600]="product.stock === 0">
+                            {{ (product.stock > 0 ? 'HOME.PRODUCT.IN_STOCK' : 'HOME.PRODUCT.OUT_OF_STOCK') | translate
+                            }}
+                            <span *ngIf="product.stock > 0">({{ product.stock }})</span>
+                        </span>
+                        <button class="btn btn-primary text-sm px-4 py-2">
+                            {{ 'HOME.PRODUCT.ADD_TO_CART' | translate }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="!loading && products.length === 0" class="text-center py-20">
+            <p class="text-gray-500 text-xl">{{ 'HOME.NO_PRODUCTS' | translate }}</p>
+        </div>
+
+        <!-- Pagination -->
+        <div *ngIf="!loading && totalPages > 1" class="flex justify-center items-center gap-2 mt-12">
+            <button (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1"
+                class="btn btn-secondary disabled:opacity-50 disabled:cursor-not-allowed">
+                Previous
+            </button>
+
+            <div class="flex gap-2">
+                <button *ngFor="let page of [].constructor(totalPages); let i = index" (click)="changePage(i + 1)"
+                    [class.bg-primary-600]="currentPage === i + 1" [class.text-white]="currentPage === i + 1"
+                    [class.bg-gray-200]="currentPage !== i + 1"
+                    class="w-10 h-10 rounded-lg font-medium transition-all hover:shadow-md">
+                    {{ i + 1 }}
+                </button>
+            </div>
+
+            <button (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages"
+                class="btn btn-secondary disabled:opacity-50 disabled:cursor-not-allowed">
+                Next
+            </button>
+        </div>
+    </section>
+
+    <!-- Promotional Banner -->
+    <section class="bg-gradient-to-r from-purple-600 to-pink-600 text-white py-16 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-4xl font-bold mb-4">{{ 'HOME.SPECIAL_OFFER' | translate }}</h2>
+            <p class="text-xl mb-8">{{ 'HOME.OFFER_TEXT' | translate }}</p>
+            <button class="btn bg-white text-purple-600 hover:bg-gray-100 px-8 py-3 text-lg">
+                {{ 'HOME.SHOP_DEALS' | translate }}
+            </button>
+        </div>
+    </section>
+</div>

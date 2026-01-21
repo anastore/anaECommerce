@@ -1,0 +1,115 @@
+<div class="p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">{{ 'ADMIN.SUBCATEGORIES.TITLE' | translate }}</h1>
+        <button *ngIf="!showForm" class="btn btn-primary flex items-center gap-2" (click)="openCreateForm()">
+            <mat-icon>add</mat-icon> {{ 'ADMIN.SUBCATEGORIES.NEW' | translate }}
+        </button>
+    </div>
+
+    <!-- Form Section -->
+    <div *ngIf="showForm" class="card mb-8 animate-fade-in">
+        <h2 class="text-xl font-bold mb-4">{{ (editingId ? 'ADMIN.SUBCATEGORIES.EDIT' : 'ADMIN.SUBCATEGORIES.NEW') |
+            translate }}</h2>
+        <form [formGroup]="subCategoryForm" (ngSubmit)="onSubmit()">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="form-label">{{ 'ADMIN.SUBCATEGORIES.NAME' | translate }}</label>
+                    <input type="text" formControlName="name" class="form-input"
+                        [placeholder]="'ADMIN.SUBCATEGORIES.PLACEHOLDERS.NAME' | translate">
+                </div>
+                <div>
+                    <label class="form-label">{{ 'ADMIN.SUBCATEGORIES.CATEGORY' | translate }}</label>
+                    <select formControlName="categoryId" class="form-select w-full p-2 border rounded">
+                        <option [ngValue]="null" disabled>{{ 'ADMIN.SUBCATEGORIES.PLACEHOLDERS.SELECT_CAT' | translate
+                            }}</option>
+                        <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</option>
+                    </select>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="form-label">{{ 'ADMIN.SUBCATEGORIES.DESCRIPTION' | translate }}</label>
+                    <input type="text" formControlName="description" class="form-input"
+                        [placeholder]="'ADMIN.SUBCATEGORIES.PLACEHOLDERS.DESC' | translate">
+                </div>
+            </div>
+            <div class="flex justify-end gap-2">
+                <button type="button" class="btn btn-secondary" (click)="cancelForm()">{{ 'COMMON.ACTIONS.CANCEL' |
+                    translate }}</button>
+                <button type="submit" class="btn btn-primary" [disabled]="subCategoryForm.invalid">{{
+                    'COMMON.ACTIONS.SAVE' | translate }}</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- List Section -->
+    <div *ngIf="!showForm" class="card overflow-hidden">
+        <div *ngIf="loading" class="flex justify-center py-10">
+            <div class="spinner"></div>
+        </div>
+
+        <div *ngIf="!loading && subCategories.length === 0" class="text-center py-10 text-gray-500">
+            {{ 'ADMIN.SUBCATEGORIES.EMPTY' | translate }}
+        </div>
+
+        <div *ngIf="!loading && subCategories.length > 0" class="overflow-x-auto">
+            <table class="table w-full">
+                <thead>
+                    <tr>
+                        <th class="text-left p-4 text-gray-500 font-medium uppercase text-xs tracking-wider">{{
+                            'ADMIN.SUBCATEGORIES.NAME' | translate }}</th>
+                        <th class="text-left p-4 text-gray-500 font-medium uppercase text-xs tracking-wider">{{
+                            'ADMIN.SUBCATEGORIES.CATEGORY' | translate }}</th>
+                        <th class="text-left p-4 text-gray-500 font-medium uppercase text-xs tracking-wider">{{
+                            'ADMIN.SUBCATEGORIES.BRANDS_COUNT' | translate }}</th>
+                        <th class="text-left p-4 text-gray-500 font-medium uppercase text-xs tracking-wider">{{
+                            'ADMIN.SUBCATEGORIES.DESCRIPTION' | translate }}
+                        </th>
+                        <th class="text-left p-4 text-gray-500 font-medium uppercase text-xs tracking-wider">{{
+                            'ADMIN.USERS.ACTIONS' | translate }}
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let sub of subCategories" class="border-b hover:bg-gray-50/50">
+                        <td class="p-4 font-semibold text-gray-800">{{ sub.name }}</td>
+                        <td class="p-4">
+                            <span
+                                class="px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded text-[11px] font-bold uppercase tracking-tight border border-indigo-100">
+                                {{ sub.categoryName || getCategoryName(sub.categoryId) }}
+                            </span>
+                        </td>
+                        <td class="p-4 text-gray-600 text-sm">
+                            <div class="flex items-center gap-2">
+                                <span class="w-1.5 h-1.5 rounded-full"
+                                    [ngClass]="sub.brandCount > 0 ? 'bg-indigo-500' : 'bg-gray-300'"></span>
+                                {{ 'ADMIN.SUBCATEGORIES.BRAND_COUNT' | translate:{count: sub.brandCount} }}
+                            </div>
+                        </td>
+                        <td class="p-4 text-gray-500 text-sm italic">{{ sub.description || '-' }}</td>
+                        <td class="p-4">
+                            <div class="flex gap-2">
+                                <button class="text-blue-600 hover:text-blue-800" (click)="openEditForm(sub)">
+                                    <mat-icon>edit</mat-icon>
+                                </button>
+                                <button class="text-red-600 hover:text-red-800" (click)="deleteSubCategory(sub.id)">
+                                    <mat-icon>delete</mat-icon>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div *ngIf="!loading && totalPages > 1" class="flex justify-center p-4 gap-2">
+            <button class="btn btn-secondary text-sm" [disabled]="currentPage === 1"
+                (click)="changePage(currentPage - 1)">{{ 'COMMON.PAGINATION.PREVIOUS' | translate }}</button>
+            <span class="px-3 py-1 bg-gray-100 rounded self-center">
+                {{ 'COMMON.PAGINATION.PAGE_X_OF_Y' | translate:{current: currentPage, total: totalPages} }}
+                {{ 'COMMON.PAGINATION.TOTAL' | translate }}: {{totalCount}}
+            </span>
+            <button class="btn btn-secondary text-sm" [disabled]="currentPage === totalPages"
+                (click)="changePage(currentPage + 1)">{{ 'COMMON.PAGINATION.NEXT' | translate }}</button>
+        </div>
+    </div>
+</div>

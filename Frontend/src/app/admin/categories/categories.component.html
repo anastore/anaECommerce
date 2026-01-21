@@ -1,0 +1,91 @@
+<div class="p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">{{ 'ADMIN.CATEGORIES.TITLE' | translate }}</h1>
+        <button *ngIf="!showForm" class="btn btn-primary flex items-center gap-2" (click)="openCreateForm()">
+            <mat-icon>add</mat-icon> {{ 'ADMIN.CATEGORIES.NEW' | translate }}
+        </button>
+    </div>
+
+    <!-- Form Section -->
+    <div *ngIf="showForm" class="card mb-8 animate-fade-in">
+        <h2 class="text-xl font-bold mb-4">{{ (editingId ? 'ADMIN.CATEGORIES.EDIT' : 'ADMIN.CATEGORIES.NEW') | translate
+            }}</h2>
+        <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="form-label">{{ 'ADMIN.CATEGORIES.NAME' | translate }}</label>
+                    <input type="text" formControlName="name" class="form-input"
+                        [placeholder]="'ADMIN.CATEGORIES.PLACEHOLDERS.NAME' | translate">
+                </div>
+                <div>
+                    <label class="form-label">{{ 'ADMIN.CATEGORIES.DESCRIPTION' | translate }}</label>
+                    <input type="text" formControlName="description" class="form-input"
+                        [placeholder]="'ADMIN.CATEGORIES.PLACEHOLDERS.DESC' | translate">
+                </div>
+            </div>
+            <div class="flex justify-end gap-2">
+                <button type="button" class="btn btn-secondary" (click)="cancelForm()">{{ 'COMMON.ACTIONS.CANCEL' |
+                    translate }}</button>
+                <button type="submit" class="btn btn-primary" [disabled]="categoryForm.invalid">{{ 'COMMON.ACTIONS.SAVE'
+                    | translate }}</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- List Section -->
+    <div *ngIf="!showForm" class="card overflow-hidden">
+        <div *ngIf="loading" class="flex justify-center py-10">
+            <div class="spinner"></div>
+        </div>
+
+        <div *ngIf="!loading && categories.length === 0" class="text-center py-10 text-gray-500">
+            {{ 'ADMIN.CATEGORIES.EMPTY' | translate }}
+        </div>
+
+        <div *ngIf="!loading && categories.length > 0" class="overflow-x-auto">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>{{ 'ADMIN.CATEGORIES.NAME' | translate }}</th>
+                        <th>{{ 'ADMIN.CATEGORIES.DESCRIPTION' | translate }}</th>
+                        <th>{{ 'ADMIN.CATEGORIES.PRODUCTS_COUNT' | translate }}</th>
+                        <th>{{ 'ADMIN.USERS.ACTIONS' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let cat of categories">
+                        <td class="font-medium">{{ cat.name }}</td>
+                        <td class="text-gray-600">{{ cat.description || '-' }}</td>
+                        <td>
+                            <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">
+                                {{ 'ADMIN.CATEGORIES.SUB_COUNT' | translate:{count: cat.subCategoryCount} }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="flex gap-2">
+                                <button class="text-blue-600 hover:text-blue-800" (click)="openEditForm(cat)">
+                                    <mat-icon>edit</mat-icon>
+                                </button>
+                                <button class="text-red-600 hover:text-red-800" (click)="deleteCategory(cat.id)">
+                                    <mat-icon>delete</mat-icon>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div *ngIf="!loading && totalPages > 1" class="flex justify-center p-4 gap-2">
+            <button class="btn btn-secondary text-sm" [disabled]="currentPage === 1"
+                (click)="changePage(currentPage - 1)">{{ 'COMMON.PAGINATION.PREVIOUS' | translate }}</button>
+            <span class="px-3 py-1 bg-gray-100 rounded self-center">
+                {{ 'COMMON.PAGINATION.PAGE_X_OF_Y' | translate:{current: currentPage, total: totalPages} }}
+                {{ 'COMMON.PAGINATION.TOTAL' | translate }}: {{totalCount}}
+            </span>
+            <button class="btn btn-secondary text-sm" [disabled]="currentPage === totalPages"
+                (click)="changePage(currentPage + 1)">{{ 'COMMON.PAGINATION.NEXT' | translate }}</button>
+        </div>
+    </div>
+</div>

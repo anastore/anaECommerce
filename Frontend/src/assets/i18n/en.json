@@ -1,0 +1,238 @@
+{
+    "HEADER": {
+        "TITLE": "AnaECommerce",
+        "LANGUAGE": "Language",
+        "LOGOUT": "Logout",
+        "LOGIN": "Login",
+        "PROFILE": "Profile"
+    },
+    "SIDEBAR": {
+        "DASHBOARD": "Dashboard",
+        "CATEGORIES": "Categories",
+        "PRODUCTS": "Products",
+        "SUBCATEGORIES": "SubCategories",
+        "BRANDS": "Brands",
+        "ORDERS": "Orders",
+        "USERS": "Users",
+        "SETTINGS": "Settings"
+    },
+    "HOME": {
+        "WELCOME": "Welcome to AnaECommerce",
+        "SUBTITLE": "Discover amazing products at unbeatable prices",
+        "SHOP_NOW": "Shop Now",
+        "FILTERS": {
+            "TITLE": "Refine Products",
+            "CATEGORY": "Category",
+            "SUBCATEGORY": "SubCategory",
+            "BRAND": "Brand",
+            "ALL_CATEGORIES": "All Categories",
+            "ALL_SUBCATEGORIES": "All SubCategories",
+            "ALL_BRANDS": "All Brands"
+        },
+        "FEATURED_PRODUCTS": "Featured Products",
+        "PRODUCT": {
+            "ADD_TO_CART": "Add to Cart",
+            "IN_STOCK": "In Stock",
+            "OUT_OF_STOCK": "Out of Stock",
+            "BRAND": "Brand"
+        },
+        "NO_PRODUCTS": "No products found",
+        "SPECIAL_OFFER": "Special Offer!",
+        "OFFER_TEXT": "Get up to 50% off on selected items",
+        "SHOP_DEALS": "Shop Deals"
+    },
+    "COMMON": {
+        "PAGINATION": {
+            "PREVIOUS": "Previous",
+            "NEXT": "Next",
+            "PAGE_X_OF_Y": "Page {{current}} of {{total}}",
+            "TOTAL": "Total"
+        },
+        "ACTIONS": {
+            "SAVE": "Save",
+            "CANCEL": "Cancel",
+            "EDIT": "Edit",
+            "DELETE": "Delete",
+            "CREATE": "Create",
+            "ADD": "Add",
+            "VIEW": "View",
+            "SEARCH": "Search"
+        },
+        "LOADING": "Loading...",
+        "STATUS": "Status"
+    },
+    "AUTH": {
+        "LOGIN": "Login",
+        "REGISTER": "Register",
+        "EMAIL": "Email",
+        "PASSWORD": "Password",
+        "FULL_NAME": "Full Name",
+        "ROLE": "Role",
+        "DONT_HAVE_ACCOUNT": "Don't have an account? Register",
+        "ALREADY_HAVE_ACCOUNT": "Already have an account? Login",
+        "PLACEHOLDERS": {
+            "EMAIL": "Ex. pat@example.com",
+            "FULL_NAME": "Ex. John Doe"
+        },
+        "ERRORS": {
+            "EMAIL_INVALID": "Please enter a valid email",
+            "PASSWORD_REQUIRED": "Password is required",
+            "FULL_NAME_REQUIRED": "Full Name is required"
+        },
+        "ROLES": {
+            "CLIENT": "Client",
+            "MARKET_USER": "Market User",
+            "ADMIN": "Admin"
+        },
+        "STEPS": {
+            "ACCOUNT": "Account Info",
+            "SHIPPING": "Shipping Details",
+            "NEXT_SHIPPING": "Next: Shipping Details",
+            "CREATE_ACCOUNT": "Create Account"
+        },
+        "ONBOARDING_SUBTITLE": "Join our premium e-commerce platform"
+    },
+    "ADMIN": {
+        "CATEGORIES": {
+            "TITLE": "Categories",
+            "NEW": "New Category",
+            "EDIT": "Edit Category",
+            "NAME": "Name",
+            "DESCRIPTION": "Description",
+            "PRODUCTS_COUNT": "Products",
+            "SUB_COUNT": "{{count}} subcategories",
+            "EMPTY": "No categories found. Create the first one!",
+            "PLACEHOLDERS": {
+                "NAME": "Category Name",
+                "DESC": "Optional description"
+            }
+        },
+        "SUBCATEGORIES": {
+            "TITLE": "SubCategories",
+            "NEW": "New SubCategory",
+            "EDIT": "Edit SubCategory",
+            "NAME": "Name",
+            "DESCRIPTION": "Description",
+            "CATEGORY": "Category",
+            "BRANDS_COUNT": "Brands",
+            "BRAND_COUNT": "{{count}} brands",
+            "EMPTY": "No subcategories found.",
+            "PLACEHOLDERS": {
+                "NAME": "SubCategory Name",
+                "DESC": "Optional description",
+                "SELECT_CAT": "Select Category"
+            }
+        },
+        "BRANDS": {
+            "TITLE": "Brands",
+            "NEW": "New Brand",
+            "EDIT": "Edit Brand",
+            "NAME": "Name",
+            "DESCRIPTION": "Description",
+            "SUBCATEGORY": "SubCategory",
+            "CATEGORY": "Category",
+            "EMPTY": "No brands found.",
+            "PLACEHOLDERS": {
+                "NAME": "Brand Name",
+                "DESC": "Optional description",
+                "SELECT_SUB": "Select SubCategory"
+            }
+        },
+        "PRODUCTS": {
+            "TITLE": "Products",
+            "NEW": "New Product",
+            "EDIT": "Edit Product",
+            "NAME": "Name",
+            "PRICE": "Price",
+            "STOCK": "Stock",
+            "DESCRIPTION": "Description",
+            "BRAND": "Brand",
+            "IMAGE": "Product Image",
+            "UPLOAD": "Upload Image",
+            "EMPTY": "No products found.",
+            "PLACEHOLDERS": {
+                "NAME": "Product Name",
+                "PRICE": "0.00",
+                "STOCK": "0",
+                "DESC": "Product description",
+                "SELECT_BRAND": "Select Brand",
+                "SEARCH": "Search products..."
+            }
+        },
+        "ORDERS": {
+            "TITLE": "Orders",
+            "ORDER_NO": "Order #",
+            "CUSTOMER": "Customer",
+            "DATE": "Date",
+            "TOTAL": "Total",
+            "STATUS": "Status",
+            "DETAILS": "Order Details",
+            "ITEMS": "Items",
+            "PRODUCT": "Product",
+            "QTY": "Qty",
+            "UNIT_PRICE": "Unit Price",
+            "SEARCH": "Search orders...",
+            "STATUSES": {
+                "PENDING": "Pending",
+                "PROCESSING": "Processing",
+                "SHIPPED": "Shipped",
+                "DELIVERED": "Delivered",
+                "CANCELLED": "Cancelled",
+                "ALL": "All Statuses"
+            }
+        },
+        "USERS": {
+            "TITLE": "User Management",
+            "FULL_NAME": "Full Name",
+            "EMAIL": "Email",
+            "ROLE": "Role",
+            "ACTIONS": "Actions",
+            "SEARCH": "Search",
+            "SEARCH_PLACEHOLDER": "Search users...",
+            "EDIT": "Edit User",
+            "DELETE": "Delete User",
+            "DELETE_CONFIRM": "Are you sure you want to delete this user?"
+        },
+        "DASHBOARD": {
+            "TITLE": "Dashboard",
+            "OVERVIEW": "Overview of your e-commerce platform",
+            "TOTAL_ORDERS": "Total Orders",
+            "TOTAL_REVENUE": "Total Revenue",
+            "TOTAL_PRODUCTS": "Total Products",
+            "ACTIVE_CUSTOMERS": "Active Customers",
+            "REGISTERED_USERS": "Registered Users",
+            "TOTAL_CATEGORIES": "Total Categories",
+            "RECENT_ORDERS": "Recent Orders",
+            "REVENUE_CHART": "Revenue Over Time",
+            "QUICK_ACTIONS": "Quick Actions",
+            "ADD_PRODUCT": "Add Product",
+            "ADD_CATEGORY": "Add Category",
+            "VIEW_ORDERS": "View Orders",
+            "SYSTEM_STATUS": "System Status",
+            "BACKEND_STATUS": "Backend Status",
+            "ONLINE": "Online",
+            "DATABASE": "Database",
+            "CONNECTED": "Connected",
+            "VERSION": "Version"
+        }
+    },
+    "PROFILE": {
+        "TITLE": "My Profile",
+        "PERSONAL_INFO": "Personal Information",
+        "ADDRESSES": "Addresses",
+        "PAYMENTS": "Payment Methods",
+        "FULL_NAME": "Full Name",
+        "PHONE": "Phone Number",
+        "BIRTHDATE": "Birth Date",
+        "GENDER": "Gender",
+        "PICTURE": "Profile Picture URL",
+        "SAVE": "Save Changes",
+        "ADD_ADDRESS": "Add Address",
+        "STREET": "Street Address",
+        "CITY": "City",
+        "STATE": "State",
+        "COUNTRY": "Country",
+        "DEFAULT_ADDR": "Default Address",
+        "ADD_PAYMENT": "Add Payment Method"
+    }
+}

@@ -1,0 +1,123 @@
+<div class="p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">{{ 'ADMIN.BRANDS.TITLE' | translate }}</h1>
+        <button *ngIf="!showForm" class="btn btn-primary flex items-center gap-2" (click)="openCreateForm()">
+            <mat-icon>add</mat-icon> {{ 'ADMIN.BRANDS.NEW' | translate }}
+        </button>
+    </div>
+
+    <!-- Form Section -->
+    <div *ngIf="showForm" class="card mb-8 animate-fade-in">
+        <h2 class="text-xl font-bold mb-4">{{ (editingId ? 'ADMIN.BRANDS.EDIT' : 'ADMIN.BRANDS.NEW') | translate }}</h2>
+        <form [formGroup]="brandForm" (ngSubmit)="onSubmit()">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="form-label">{{ 'ADMIN.BRANDS.NAME' | translate }}</label>
+                    <input type="text" formControlName="name" class="form-input"
+                        [placeholder]="'ADMIN.BRANDS.PLACEHOLDERS.NAME' | translate">
+                </div>
+                <div>
+                    <label class="form-label">{{ 'ADMIN.BRANDS.SUBCATEGORY' | translate }}</label>
+                    <select formControlName="subCategoryId" class="form-select w-full p-2 border rounded">
+                        <option [ngValue]="null" disabled>{{ 'ADMIN.BRANDS.PLACEHOLDERS.SELECT_SUB' | translate }}
+                        </option>
+                        <option *ngFor="let sub of subCategories" [value]="sub.id">{{ sub.name }} ({{ sub.categoryName
+                            }})</option>
+                    </select>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="form-label">{{ 'ADMIN.BRANDS.DESCRIPTION' | translate }}</label>
+                    <input type="text" formControlName="description" class="form-input"
+                        [placeholder]="'ADMIN.BRANDS.PLACEHOLDERS.DESC' | translate">
+                </div>
+            </div>
+            <div class="flex justify-end gap-2">
+                <button type="button" class="btn btn-secondary" (click)="cancelForm()">{{ 'COMMON.ACTIONS.CANCEL' |
+                    translate }}</button>
+                <button type="submit" class="btn btn-primary" [disabled]="brandForm.invalid">{{ 'COMMON.ACTIONS.SAVE' |
+                    translate }}</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- List Section -->
+    <div *ngIf="!showForm" class="card overflow-hidden">
+        <div *ngIf="loading" class="flex justify-center py-10">
+            <div class="spinner"></div>
+        </div>
+
+        <div *ngIf="!loading && brands.length === 0" class="text-center py-10 text-gray-500">
+            {{ 'ADMIN.BRANDS.EMPTY' | translate }}
+        </div>
+
+        <div *ngIf="!loading && brands.length > 0" class="overflow-x-auto">
+            <table class="table w-full">
+                <thead>
+                    <tr>
+                        <th class="text-left p-4 text-gray-500 font-medium uppercase text-xs tracking-wider">{{
+                            'ADMIN.BRANDS.NAME' | translate }}</th>
+                        <th class="text-left p-4 text-gray-500 font-medium uppercase text-xs tracking-wider">{{
+                            'ADMIN.ORDERS.TOTAL' | translate }} (Hierarchy)</th>
+                        <th class="text-left p-4 text-gray-500 font-medium uppercase text-xs tracking-wider">{{
+                            'ADMIN.ORDERS.ITEMS' | translate }}</th>
+                        <th class="text-left p-4 text-gray-500 font-medium uppercase text-xs tracking-wider">{{
+                            'ADMIN.BRANDS.DESCRIPTION' | translate }}
+                        </th>
+                        <th class="text-left p-4 text-gray-500 font-medium uppercase text-xs tracking-wider">{{
+                            'ADMIN.USERS.ACTIONS' | translate }}
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let brand of brands" class="border-b hover:bg-gray-50/50">
+                        <td class="p-4 font-semibold text-gray-800">{{ brand.name }}</td>
+                        <td class="p-4">
+                            <div class="flex items-center gap-1">
+                                <span
+                                    class="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-[11px] font-bold uppercase tracking-tight">
+                                    {{ brand.categoryName || getCategoryNameBySubId(brand.subCategoryId) }}
+                                </span>
+                                <mat-icon
+                                    class="text-gray-300 !text-sm flex items-center justify-center pt-1">chevron_right</mat-icon>
+                                <span
+                                    class="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-[11px] font-bold uppercase tracking-tight border border-blue-100">
+                                    {{ brand.subCategoryName || getSubCategoryName(brand.subCategoryId) }}
+                                </span>
+                            </div>
+                        </td>
+                        <td class="p-4 text-gray-600 text-sm">
+                            <div class="flex items-center gap-2">
+                                <span class="w-1.5 h-1.5 rounded-full"
+                                    [ngClass]="brand.productCount > 0 ? 'bg-green-500' : 'bg-gray-300'"></span>
+                                {{ 'ADMIN.SUBCATEGORIES.BRAND_COUNT' | translate:{count: brand.productCount} }}
+                            </div>
+                        </td>
+                        <td class="p-4 text-gray-500 text-sm italic">{{ brand.description || '-' }}</td>
+                        <td class="p-4">
+                            <div class="flex gap-2">
+                                <button class="text-blue-600 hover:text-blue-800" (click)="openEditForm(brand)">
+                                    <mat-icon>edit</mat-icon>
+                                </button>
+                                <button class="text-red-600 hover:text-red-800" (click)="deleteBrand(brand.id)">
+                                    <mat-icon>delete</mat-icon>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div *ngIf="!loading && totalPages > 1" class="flex justify-center p-4 gap-2">
+            <button class="btn btn-secondary text-sm" [disabled]="currentPage === 1"
+                (click)="changePage(currentPage - 1)">{{ 'COMMON.PAGINATION.PREVIOUS' | translate }}</button>
+            <span class="px-3 py-1 bg-gray-100 rounded self-center">
+                {{ 'COMMON.PAGINATION.PAGE_X_OF_Y' | translate:{current: currentPage, total: totalPages} }}
+                {{ 'COMMON.PAGINATION.TOTAL' | translate }}: {{totalCount}}
+            </span>
+            <button class="btn btn-secondary text-sm" [disabled]="currentPage === totalPages"
+                (click)="changePage(currentPage + 1)">{{ 'COMMON.PAGINATION.NEXT' | translate }}</button>
+        </div>
+    </div>
+</div>

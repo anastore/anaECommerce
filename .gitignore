@@ -1,0 +1,35 @@
+# .gitignore for AnaECommerce (Root)
+
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+.vscode/
+app.db
+
+# Node / Angular
+node_modules/
+dist/
+.angular/
+.vscode/
+
+# Environment files
+.env
+.env.*
+! .env.example
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# AI Tools
+.agent/
+.gemini/
+brain/
+implementation_plan.md
+task.md
+walkthrough.md

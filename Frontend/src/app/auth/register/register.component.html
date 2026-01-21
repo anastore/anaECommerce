@@ -1,0 +1,147 @@
+<div class="register-container min-h-screen flex items-center justify-center p-4 bg-gray-50 bg-cover bg-center"
+    style="background-image: linear-gradient(to bottom, rgba(255,255,255,0.8), rgba(255,255,255,0.9)), url('assets/login_background.png');">
+
+    <mat-card class="max-w-2xl w-full border-none shadow-premium rounded-3xl overflow-hidden animate-fade-in mx-auto">
+        <div class="bg-primary-600 p-8 text-white text-center">
+            <h1 class="text-3xl font-bold mb-2">{{ 'AUTH.REGISTER' | translate }}</h1>
+            <p class="text-primary-100 italic">{{ 'AUTH.ONBOARDING_SUBTITLE' | translate }}</p>
+        </div>
+
+        <mat-card-content class="p-8">
+            <mat-stepper #stepper linear class="registration-stepper">
+                <!-- Step 1: Personal Info -->
+                <mat-step [stepControl]="accountForm">
+                    <ng-template matStepLabel>{{ 'AUTH.STEPS.ACCOUNT' | translate }}</ng-template>
+
+                    <!-- Photo Upload Section -->
+                    <div class="mb-8 text-center flex flex-col items-center">
+                        <div class="relative inline-block">
+                            <img [src]="imagePreview || 'assets/images/default-avatar.png'"
+                                class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg bg-gray-100"
+                                alt="Profile Preview">
+                            <button mat-mini-fab color="basic"
+                                class="absolute bottom-0 right-0 shadow-md hover:bg-gray-100 transition-colors"
+                                type="button" (click)="triggerFileInput(fileInput)">
+                                <mat-icon>photo_camera</mat-icon>
+                            </button>
+                        </div>
+                        <input #fileInput type="file" id="fileInput" class="hidden" (change)="onFileSelected($event)"
+                            accept="image/*">
+                        <p class="mt-4 text-xs font-medium text-gray-400 uppercase tracking-widest italic">
+                            {{ 'PROFILE.PICTURE' | translate }}
+                        </p>
+                    </div>
+
+                    <form [formGroup]="accountForm" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                        <mat-form-field appearance="outline" class="md:col-span-2">
+                            <mat-label>{{ 'AUTH.FULL_NAME' | translate }}</mat-label>
+                            <input matInput formControlName="fullName"
+                                [placeholder]="'AUTH.PLACEHOLDERS.FULL_NAME' | translate">
+                            <mat-icon matPrefix class="mr-2 text-gray-400">person</mat-icon>
+                            <mat-error *ngIf="accountForm.get('fullName')?.hasError('required')">Full name is
+                                required</mat-error>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="md:col-span-2">
+                            <mat-label>{{ 'AUTH.EMAIL' | translate }}</mat-label>
+                            <input matInput formControlName="email"
+                                [placeholder]="'AUTH.PLACEHOLDERS.EMAIL' | translate">
+                            <mat-icon matPrefix class="mr-2 text-gray-400">email</mat-icon>
+                            <mat-error *ngIf="accountForm.get('email')?.hasError('required')">Email is
+                                required</mat-error>
+                            <mat-error *ngIf="accountForm.get('email')?.hasError('email')">Please enter a valid
+                                email</mat-error>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline">
+                            <mat-label>{{ 'AUTH.PASSWORD' | translate }}</mat-label>
+                            <input matInput [type]="hide ? 'password' : 'text'" formControlName="password">
+                            <button mat-icon-button matSuffix (click)="hide = !hide" type="button">
+                                <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+                            </button>
+                            <mat-error *ngIf="accountForm.get('password')?.hasError('required')">Password is
+                                required</mat-error>
+                            <mat-error *ngIf="accountForm.get('password')?.hasError('minlength')">Password must be at
+                                least 6 characters</mat-error>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="md:col-span-2">
+                            <mat-label>{{ 'PROFILE.PHONE' | translate }}</mat-label>
+                            <button type="button" mat-button matPrefix [matMenuTriggerFor]="countryMenu"
+                                class="px-2 min-w-0 flex items-center gap-1 border-r mr-2">
+                                <span class="font-bold text-gray-700">{{ accountForm.get('countryCode')?.value }}</span>
+                                <mat-icon class="scale-75 text-gray-400">arrow_drop_down</mat-icon>
+                            </button>
+                            <mat-menu #countryMenu="matMenu">
+                                <button mat-menu-item *ngFor="let c of countryCodes" (click)="setCountryCode(c.code)">
+                                    <span class="mr-2">{{c.flag}}</span> {{c.name}} ({{c.code}})
+                                </button>
+                            </mat-menu>
+                            <input matInput formControlName="phoneNumber" placeholder="123456789">
+                            <mat-icon matSuffix class="text-gray-400">phone</mat-icon>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline">
+                            <mat-label>{{ 'AUTH.ROLE' | translate }}</mat-label>
+                            <mat-select formControlName="role">
+                                <mat-option value="Client">{{ 'AUTH.ROLES.CLIENT' | translate }}</mat-option>
+                                <mat-option value="MarketUser">{{ 'AUTH.ROLES.MARKET_USER' | translate }}</mat-option>
+                            </mat-select>
+                        </mat-form-field>
+
+                        <div class="md:col-span-2 flex justify-end mt-4">
+                            <button mat-flat-button color="primary" matStepperNext [disabled]="accountForm.invalid">
+                                {{ 'AUTH.STEPS.NEXT_SHIPPING' | translate }} <mat-icon>arrow_forward</mat-icon>
+                            </button>
+                        </div>
+                    </form>
+                </mat-step>
+
+                <!-- Step 2: Address Info -->
+                <mat-step [stepControl]="addressForm">
+                    <ng-template matStepLabel>{{ 'AUTH.STEPS.SHIPPING' | translate }}</ng-template>
+                    <form [formGroup]="addressForm" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                        <mat-form-field appearance="outline">
+                            <mat-label>{{ 'PROFILE.COUNTRY' | translate }}</mat-label>
+                            <input matInput formControlName="country" placeholder="e.g. Egypt">
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline">
+                            <mat-label>{{ 'PROFILE.STATE' | translate }}</mat-label>
+                            <input matInput formControlName="state" placeholder="e.g. Cairo">
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline">
+                            <mat-label>{{ 'PROFILE.CITY' | translate }}</mat-label>
+                            <input matInput formControlName="city" placeholder="e.g. New Cairo">
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="md:col-span-2">
+                            <mat-label>{{ 'PROFILE.STREET' | translate }}</mat-label>
+                            <textarea matInput formControlName="streetAddress"
+                                placeholder="Street, Building, Apartment"></textarea>
+                        </mat-form-field>
+
+                        <div class="md:col-span-2 flex justify-between items-center mt-6">
+                            <button mat-button matStepperPrevious>
+                                <mat-icon>arrow_back</mat-icon> {{ 'COMMON.ACTIONS.CANCEL' | translate }}
+                            </button>
+                            <button mat-raised-button color="primary" (click)="onSubmit()"
+                                [disabled]="addressForm.invalid || loading" class="px-8 py-2">
+                                <span *ngIf="!loading">{{ 'AUTH.STEPS.CREATE_ACCOUNT' | translate }}</span>
+                                <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+                            </button>
+                        </div>
+                    </form>
+                </mat-step>
+            </mat-stepper>
+        </mat-card-content>
+
+        <mat-card-actions class="p-4 bg-gray-50 text-center flex justify-center">
+            <p class="text-sm text-gray-600">
+                Already have an account?
+                <a routerLink="/login" class="text-primary-600 font-bold hover:underline cursor-pointer">Login here</a>
+            </p>
+        </mat-card-actions>
+    </mat-card>
+</div>
