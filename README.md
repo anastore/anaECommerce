@@ -13,7 +13,7 @@ AnaECommerce is a state-of-the-art, full-stack e-commerce solution built with a 
 
 ### 👤 Premium Profile Management
 *   **Unified Profile Dashboard**: A clean, modern interface for managing personal data, addresses, and payments.
-*   **Smart Edit Mode**: Toggle between a high-fidelity read-only view and an interactive edit form with a single click.
+*   **Smart Edit Mode**: Toggle between a high-fidelity read-only view and an interactive edit form with a  single click.
 *   **Multi-Address System**: Dynamic management of multiple delivery addresses (Home, Office, etc.).
 *   **Payment Metadata**: Ready-to-go Stripe integration metadata for payment method management.
 
