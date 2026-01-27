@@ -4,6 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AnaECommerce.Backend.Controllers
 {
+    /// <summary>
+    /// API Controller for user authentication and account registration.
+    /// Handles JWT issuance and identity validation.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
@@ -15,6 +19,7 @@ namespace AnaECommerce.Backend.Controllers
             _authService = authService;
         }
 
+        /// <summary>Registers a new user account in the system.</summary>
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto model)
         {
@@ -25,6 +30,10 @@ namespace AnaECommerce.Backend.Controllers
             return Ok(new { message });
         }
 
+        /// <summary>
+        /// Authenticates a user and returns a JWT token if credentials are valid.
+        /// Expected by the frontend to maintain session state.
+        /// </summary>
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto model)
         {

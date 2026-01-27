@@ -1,8 +1,8 @@
 <div class="p-6">
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
         <h1 class="text-3xl font-bold text-gray-800">{{ 'ADMIN.ORDERS.TITLE' | translate }}</h1>
 
-        <div>
+        <div class="flex flex-col md:flex-row gap-4 w-full md:w-auto">
             <select (change)="filterByStatus($event.target)" class="form-input w-48">
                 <option value="all">{{ 'ADMIN.ORDERS.STATUSES.ALL' | translate }}</option>
                 <option *ngFor="let status of orderStatuses" [value]="status.value">{{ status.key | translate }}
@@ -47,18 +47,16 @@
                         </td>
                         <td class="font-bold">${{ order.totalAmount | number:'1.2-2' }}</td>
                         <td>
-                            <span class="px-2 py-1 rounded-full text-xs font-semibold"
-                                [ngClass]="getStatusColor(order.status)">
+                            <span class="px-2 py-1 rounded-full text-xs font-semibold cursor-pointer"
+                                [ngClass]="getStatusColor(order.status)" (click)="openStatusForm(order)">
                                 {{ getStatusLabel(order.status) | translate }}
                             </span>
                         </td>
                         <td>
                             <div class="flex items-center gap-2">
-                                <select [value]="order.status" (change)="updateStatus(order, $any($event.target).value)"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded p-1">
-                                    <option *ngFor="let s of orderStatuses" [value]="s.value">{{ s.key | translate }}
-                                    </option>
-                                </select>
+                                <button class="text-blue-600 hover:text-blue-800" (click)="openStatusForm(order)">
+                                    <mat-icon>edit</mat-icon>
+                                </button>
                                 <button class="text-red-600 hover:text-red-800 ml-2" (click)="deleteOrder(order.id)">
                                     <mat-icon>delete</mat-icon>
                                 </button>
@@ -69,16 +67,8 @@
             </table>
         </div>
 
-        <!-- Pagination -->
-        <div *ngIf="!loading && totalPages > 1" class="flex justify-center p-4 gap-2">
-            <button class="btn btn-secondary text-sm" [disabled]="currentPage === 1"
-                (click)="changePage(currentPage - 1)">{{ 'COMMON.PAGINATION.PREVIOUS' | translate }}</button>
-            <span class="px-3 py-1 bg-gray-100 rounded self-center">
-                {{ 'COMMON.PAGINATION.PAGE_X_OF_Y' | translate:{current: currentPage, total: totalPages} }}
-                {{ 'COMMON.PAGINATION.TOTAL' | translate }}: {{totalCount}}
-            </span>
-            <button class="btn btn-secondary text-sm" [disabled]="currentPage === totalPages"
-                (click)="changePage(currentPage + 1)">{{ 'COMMON.PAGINATION.NEXT' | translate }}</button>
-        </div>
+        <app-pagination *ngIf="!loading && totalCount > 0" [length]="totalCount" [pageSize]="pageSize"
+            [pageIndex]="currentPage - 1" (page)="onPageChange($event)">
+        </app-pagination>
     </div>
 </div>

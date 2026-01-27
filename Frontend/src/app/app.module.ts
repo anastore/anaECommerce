@@ -29,6 +29,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { BidiModule } from '@angular/cdk/bidi';
+import { SharedModule } from './shared/shared.module';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -47,14 +48,29 @@ import { OrdersComponent } from './admin/orders/orders.component';
 import { SubCategoriesComponent } from './admin/sub-categories/sub-categories.component';
 import { BrandsComponent } from './admin/brands/brands.component';
 import { ProfileComponent } from './user/profile/profile.component';
+import { CategoryFormComponent } from './admin/categories/category-form/category-form.component';
+import { ProductFormComponent } from './admin/products/product-form/product-form.component';
+import { BrandFormComponent } from './admin/brands/brand-form/brand-form.component';
+import { SubCategoryFormComponent } from './admin/sub-categories/sub-category-form/sub-category-form.component';
+import { OrderStatusFormComponent } from './admin/orders/order-status-form/order-status-form.component';
+
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { JwtInterceptor } from './core/interceptors/jwt.interceptor';
 import { ErrorInterceptor } from './core/interceptors/error.interceptor';
 
+/** Factory for ngx-translate to load JSON culture files via HTTP. */
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
 }
 
+/**
+ * Root Module for the AnaECommerce application.
+ * Responsibility:
+ * 1. Bootstraps the application via AppComponent.
+ * 2. Orchestrates global provider injections (Interceptors).
+ * 3. Aggregates Material UI modules for consistent design language.
+ * 4. Initializes internationalization (i18n) and accessibility (Bidi) support.
+ */
 @NgModule({
   declarations: [
     AppComponent,
@@ -72,7 +88,12 @@ export function HttpLoaderFactory(http: HttpClient) {
     OrdersComponent,
     SubCategoriesComponent,
     BrandsComponent,
-    ProfileComponent
+    ProfileComponent,
+    CategoryFormComponent,
+    ProductFormComponent,
+    BrandFormComponent,
+    SubCategoryFormComponent,
+    OrderStatusFormComponent
   ],
   imports: [
     BrowserModule,
@@ -81,6 +102,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     ReactiveFormsModule,
     FormsModule,
     AppRoutingModule,
+    // Material UI Components
     MatCardModule,
     MatInputModule,
     MatButtonModule,
@@ -96,6 +118,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     MatDialogModule,
     MatChipsModule,
     MatProgressSpinnerModule,
+    // i18n support
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
@@ -104,6 +127,7 @@ export function HttpLoaderFactory(http: HttpClient) {
       }
     }),
     BidiModule,
+    SharedModule,
     MatDatepickerModule,
     MatNativeDateModule,
     MatCheckboxModule,
@@ -112,6 +136,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     MatMenuModule
   ],
   providers: [
+    // Register Global Interceptors for session and error management
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }
   ],

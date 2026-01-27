@@ -10,6 +10,10 @@ using AnaECommerce.Backend.Data;
 
 namespace AnaECommerce.Backend.Controllers
 {
+    /// <summary>
+    /// API Controller for users to manage their own profiles, addresses, and payment methods.
+    /// Restricted to authenticated users.
+    /// </summary>
     [ApiController]
     [Route("api/profile")]
     [Authorize]
@@ -28,6 +32,8 @@ namespace AnaECommerce.Backend.Controllers
             _context = context;
             _mapper = mapper;
         }
+
+        /// <summary>Retrieves the profile of the currently logged-in user.</summary>
         [HttpGet("GetProfile")]
         public async Task<ActionResult<UserProfileDto>> GetProfile()
         {
@@ -46,6 +52,7 @@ namespace AnaECommerce.Backend.Controllers
             return Ok(dto);
         }
 
+        /// <summary>Updates the logged-in user's profile information.</summary>
         [HttpPut("UpdateProfile")]
         public async Task<IActionResult> UpdateProfile(UpdateUserProfileDto dto)
         {
@@ -56,6 +63,7 @@ namespace AnaECommerce.Backend.Controllers
 
             _mapper.Map(dto, user);
             
+            // Special handling for Identity-managed fields
             if (user.PhoneNumber != dto.PhoneNumber)
             {
                 await _userManager.SetPhoneNumberAsync(user, dto.PhoneNumber);
@@ -68,6 +76,7 @@ namespace AnaECommerce.Backend.Controllers
             return BadRequest(result.Errors);
         }
 
+        /// <summary>Adds a new shipping/billing address for the user.</summary>
         [HttpPost("addresses")]
         public async Task<ActionResult<AddressDto>> AddAddress(CreateAddressDto dto)
         {
@@ -76,6 +85,7 @@ namespace AnaECommerce.Backend.Controllers
             var address = _mapper.Map<Address>(dto);
             address.UserId = userId!;
 
+            // Maintain single default address invariant
             if (address.IsDefault)
             {
                 var existingAddresses = await _context.Addresses
@@ -90,6 +100,7 @@ namespace AnaECommerce.Backend.Controllers
             return CreatedAtAction(nameof(GetProfile), _mapper.Map<AddressDto>(address));
         }
 
+        /// <summary>Removes a user's address.</summary>
         [HttpDelete("addresses/{id}")]
         public async Task<IActionResult> DeleteAddress(int id)
         {
@@ -105,6 +116,7 @@ namespace AnaECommerce.Backend.Controllers
             return NoContent();
         }
 
+        /// <summary>Lists stored payment methods for the user.</summary>
         [HttpGet("GetPaymentMethods")]
         public async Task<ActionResult<IEnumerable<UserPaymentMethodDto>>> GetPaymentMethods()
         {

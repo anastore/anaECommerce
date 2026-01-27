@@ -13,12 +13,19 @@ import { BrandsComponent } from './admin/brands/brands.component';
 import { ProfileComponent } from './user/profile/profile.component';
 import { AdminGuard } from './core/guards/admin.guard';
 
+/**
+ * Root Routing Configuration.
+ * Responsibility:
+ * 1. Maps URL paths to specific feature components.
+ * 2. Enforces security policies via canActivate guards (e.g., AdminGuard).
+ * 3. Handles default and wild-card navigation states.
+ */
 const routes: Routes = [
     { path: '', component: HomeComponent },
     { path: 'login', component: LoginComponent },
     { path: 'register', component: RegisterComponent },
 
-    // Admin Routes
+    // Admin Routes: Protected via AdminGuard to ensure high-level privilege access only
     { path: 'admin/dashboard', component: DashboardComponent, canActivate: [AdminGuard] },
     { path: 'admin/users', component: UserListComponent, canActivate: [AdminGuard] },
     { path: 'admin/categories', component: CategoriesComponent, canActivate: [AdminGuard] },
@@ -26,6 +33,8 @@ const routes: Routes = [
     { path: 'admin/brands', component: BrandsComponent, canActivate: [AdminGuard] },
     { path: 'admin/products', component: ProductsComponent, canActivate: [AdminGuard] },
     { path: 'admin/orders', component: OrdersComponent, canActivate: [AdminGuard] },
+
+    // User Self-Service
     { path: 'profile', component: ProfileComponent }
 ];
 

@@ -32,13 +32,17 @@ export class BrandService {
 
     constructor(private http: HttpClient) { }
 
-    getBrands(pageNumber: number = 1, pageSize: number = 10, subCategoryId?: number): Observable<PaginatedResult<Brand>> {
+    getBrands(pageNumber: number = 1, pageSize: number = 10, subCategoryId?: number, search?: string): Observable<PaginatedResult<Brand>> {
         let params = new HttpParams()
             .set('pageNumber', pageNumber.toString())
             .set('pageSize', pageSize.toString());
 
         if (subCategoryId) {
             params = params.set('subCategoryId', subCategoryId.toString());
+        }
+
+        if (search) {
+            params = params.set('search', search);
         }
 
         return this.http.get<PaginatedResult<Brand>>(this.apiUrl, { params });

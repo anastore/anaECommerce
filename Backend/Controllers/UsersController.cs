@@ -7,6 +7,10 @@ using AnaECommerce.Backend.Models;
 
 namespace AnaECommerce.Backend.Controllers
 {
+    /// <summary>
+    /// API Controller for administrative user management.
+    /// Restricted strictly to Admin users.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     [Authorize(Roles = "Admin")]
@@ -19,10 +23,27 @@ namespace AnaECommerce.Backend.Controllers
             _userManager = userManager;
         }
 
+        /// <summary>Lists all users with search and pagination features.</summary>
         [HttpGet("")]
-        public async Task<ActionResult<IEnumerable<UserDto>>> GetAllUsers()
+        public async Task<ActionResult<PaginatedResult<UserDto>>> GetAllUsers(
+            [FromQuery] int pageNumber = 1, 
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? search = null)
         {
-            var users = await _userManager.Users.ToListAsync();
+            var usersQuery = _userManager.Users.AsQueryable();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                usersQuery = usersQuery.Where(u => u.FullName.Contains(search) || (u.Email != null && u.Email.Contains(search)));
+            }
+
+            var totalCount = await usersQuery.CountAsync();
+            
+            var users = await usersQuery
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
             var userDtos = new List<UserDto>();
 
             foreach (var user in users)
@@ -40,9 +61,16 @@ namespace AnaECommerce.Backend.Controllers
                 });
             }
 
-            return Ok(userDtos);
+            return Ok(new PaginatedResult<UserDto>
+            {
+                Items = userDtos,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            });
         }
 
+        /// <summary>Gets a specific user's basic info and system status.</summary>
         [HttpGet("{id}")]
         public async Task<ActionResult<UserDto>> GetUser(string id)
         {
@@ -67,6 +95,7 @@ namespace AnaECommerce.Backend.Controllers
             return Ok(userDto);
         }
 
+        /// <summary>Updates a user's account name and email.</summary>
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUser(string id, UpdateUserDto updateUserDto)
         {
@@ -91,6 +120,7 @@ namespace AnaECommerce.Backend.Controllers
             return Ok(new { message = "User updated successfully" });
         }
 
+        /// <summary>Hard deletes a user from the Identity system.</summary>
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(string id)
         {
@@ -109,6 +139,10 @@ namespace AnaECommerce.Backend.Controllers
             return Ok(new { message = "User deleted successfully" });
         }
 
+        /// <summary>
+        /// Changes a user's security role.
+        /// Logic: Removes all current roles first to ensure single-role assignment.
+        /// </summary>
         [HttpPut("{id}/role")]
         public async Task<IActionResult> AssignRole(string id, AssignRoleDto assignRoleDto)
         {
@@ -118,11 +152,11 @@ namespace AnaECommerce.Backend.Controllers
                 return NotFound(new { message = "User not found" });
             }
 
-            // Remove existing roles
+            // Remove existing roles to prevent role accumulation
             var currentRoles = await _userManager.GetRolesAsync(user);
             await _userManager.RemoveFromRolesAsync(user, currentRoles);
 
-            // Add new role
+            // Add the single new role
             var result = await _userManager.AddToRoleAsync(user, assignRoleDto.RoleName);
             if (!result.Succeeded)
             {

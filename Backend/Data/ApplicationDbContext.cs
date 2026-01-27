@@ -5,6 +5,10 @@ using System.Security.Claims;
 
 namespace AnaECommerce.Backend.Data
 {
+    /// <summary>
+    /// The primary database context for the application.
+    /// Inherits from IdentityDbContext to support ASP.NET Core Identity (Users/Roles).
+    /// </summary>
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         private readonly IHttpContextAccessor? _httpContextAccessor;
@@ -22,11 +26,16 @@ namespace AnaECommerce.Backend.Data
         public DbSet<Address> Addresses { get; set; }
         public DbSet<UserPaymentMethod> PaymentMethods { get; set; }
 
+        /// <summary>
+        /// Configures the database models using the Fluent API.
+        /// Defines relationships, constraints, and indexes.
+        /// </summary>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
             // Global query filter for soft delete
+            // Automatically excludes entities marked as IsDeleted from all queries
             modelBuilder.Entity<Category>().HasQueryFilter(e => !e.IsDeleted);
             modelBuilder.Entity<Product>().HasQueryFilter(e => !e.IsDeleted);
             modelBuilder.Entity<Order>().HasQueryFilter(e => !e.IsDeleted);
@@ -122,8 +131,13 @@ namespace AnaECommerce.Backend.Data
             });
         }
 
+        /// <summary>
+        /// Overrides SaveChangesAsync to automatically populate Audit fields.
+        /// Handles CreatedAt, CreatedBy, UpdatedAt, and UpdatedBy.
+        /// </summary>
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
+            // Extract the user ID from the JWT token claims
             var currentUserId = _httpContextAccessor?.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
 
             foreach (var entry in ChangeTracker.Entries<BaseEntity>())

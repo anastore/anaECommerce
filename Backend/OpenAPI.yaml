@@ -1,0 +1,496 @@
+openapi: 3.0.3
+info:
+  title: AnaECommerce Backend API
+  version: v1
+  description: Backend REST API for AnaECommerce with JWT authentication and role-based access.
+servers:
+  - url: http://localhost:5001/api
+    description: Development
+  - url: https://ana.runasp.net/api
+    description: Production
+paths:
+  /api/auth/register:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterDto'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400': {"description": "Bad Request"}
+      tags:
+        - Auth
+  /api/auth/login:
+    post:
+      summary: User login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginDto'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401': {"description": "Unauthorized"}
+      tags:
+        - Auth
+  /api/users:
+    get:
+      summary: Get users (admin only)
+      responses:
+        '200':
+          description: Paginated list of users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUser'
+      security:
+        - BearerAuth: []
+      tags:
+        - Users
+  /api/users/{id}:
+    get:
+      summary: Get a user by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200': {"description": "OK", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/UserDto"}}}}
+        '404': {"description": "Not Found"}
+      security:
+        - BearerAuth: []
+      tags:
+        - Users
+    put:
+      summary: Update a user
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserDto'
+      responses:
+        '200': {"description": "OK"}
+        '400': {"description": "Bad Request"}
+        '404': {"description": "Not Found"}
+      security:
+        - BearerAuth: []
+      tags:
+        - Users
+    delete:
+      summary: Delete a user
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204': {"description": "No Content"}
+        '404': {"description": "Not Found"}
+      security:
+        - BearerAuth: []
+      tags:
+        - Users
+  /api/users/{id}/role:
+    put:
+      summary: Assign role to user
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignRoleDto'
+      responses:
+        '200': {"description": "OK"}
+        '400': {"description": "Bad Request"}
+      security:
+        - BearerAuth: []
+      tags:
+        - Users
+  /api/profile/GetProfile:
+    get:
+      summary: Get current user profile
+      responses:
+        '200': {"description": "OK", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/UserProfileDto"}}}}
+      security:
+        - BearerAuth: []
+      tags:
+        - Profile
+  /api/profile/UpdateProfile:
+    put:
+      summary: Update current user profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfileDto'
+      responses:
+        '200': {"description": "OK"}
+      security:
+        - BearerAuth: []
+      tags:
+        - Profile
+  /api/profile/addresses:
+    post:
+      summary: Add new address
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddressDto'
+      responses:
+        '201': {"description": "Created"}
+      security:
+        - BearerAuth: []
+      tags:
+        - Profile
+  /api/profile/addresses/{id}:
+    delete:
+      summary: Delete address
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204': {"description": "No Content"}
+      security:
+        - BearerAuth: []
+      tags:
+        - Profile
+  /api/profile/GetPaymentMethods:
+    get:
+      summary: Get payment methods
+      responses:
+        '200': {"description": "OK"}
+      security:
+        - BearerAuth: []
+      tags:
+        - Profile
+  /api/products:
+    get:
+      summary: Get products (anonymous)
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+      responses:
+        '200': {"description": "OK"}
+      tags:
+        - Products
+  /api/products/{id}:
+    get:
+      summary: Get a product by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200': {"description": "OK"}
+        '404': {"description": "Not Found"}
+      tags:
+        - Products
+    post:
+      summary: Create product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductDto'
+      responses:
+        '201': {"description": "Created"}
+      security:
+        - BearerAuth: []
+      tags:
+        - Products
+    put:
+      summary: Update product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductDto'
+      responses:
+        '200': {"description": "OK"}
+      security:
+        - BearerAuth: []
+      tags:
+        - Products
+    delete:
+      summary: Delete product
+      responses:
+        '204': {"description": "No Content"}
+      security:
+        - BearerAuth: []
+      tags:
+        - Products
+  /api/products/upload-image:
+    post:
+      summary: Upload product image
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200': {"description": "OK"}
+      security:
+        - BearerAuth: []
+      tags:
+        - Products
+  /api/categories:
+    get:
+      summary: Get categories
+      responses:
+        '200': {"description": "OK"}
+      tags:
+        - Categories
+  /api/categories/{id}:
+    get:
+      summary: Get category by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200': {"description": "OK"}
+        '404': {"description": "Not Found"}
+      tags:
+        - Categories
+    post:
+      summary: Create category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryDto'
+      responses:
+        '201': { "description": "Created" }
+      security:
+        - BearerAuth: []
+      tags:
+        - Categories
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    RegisterDto:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - username
+        - email
+        - password
+    LoginDto:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - email
+        - password
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: '#/components/schemas/UserDto'
+    UserDto:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+    PaginatedUser:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserDto'
+        totalCount:
+          type: integer
+        pageNumber:
+          type: integer
+        pageSize:
+          type: integer
+    UpdateUserDto:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+    UserProfileDto:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        phone:
+          type: string
+    AddressDto:
+      type: object
+      properties:
+        id:
+          type: string
+        line1:
+          type: string
+        city:
+          type: string
+        postalCode:
+          type: string
+        country:
+          type: string
+    ProductDto:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+          format: double
+        categoryId:
+          type: string
+        brandId:
+          type: string
+        stock:
+          type: integer
+        imageUrl:
+          type: string
+    CategoryDto:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+    SubCategoryDto:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        categoryId:
+          type: string
+    BrandDto:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    OrderDto:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        status:
+          type: string
+        total:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+    RoleDto:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+    PaginatedResult:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+        totalCount:
+          type: integer
+        pageNumber:
+          type: integer
+        pageSize:
+          type: integer

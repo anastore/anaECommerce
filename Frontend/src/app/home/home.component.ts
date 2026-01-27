@@ -6,6 +6,10 @@ import { BrandService, Brand } from '../services/brand.service';
 import { Product, Category } from '../core/models/ecommerce.models';
 import { environment } from '../../environments/environment';
 
+/**
+ * Main landing page component.
+ * Features a dynamic catalog with hierarchical filtering (Category -> Sub-Category -> Brand).
+ */
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
@@ -17,9 +21,12 @@ export class HomeComponent implements OnInit {
   subCategories: SubCategory[] = [];
   brands: Brand[] = [];
   loading = true;
+
+  // Selected filters for catalog browsing
   selectedCategoryId?: number;
   selectedSubCategoryId?: number;
   selectedBrandId?: number;
+
   currentPage = 1;
   pageSize = 12;
   totalPages = 1;
@@ -36,6 +43,7 @@ export class HomeComponent implements OnInit {
     this.loadProducts();
   }
 
+  /** Loads all active categories for the side/top menu. */
   loadCategories(): void {
     this.categoryService.getCategories(1, 100).subscribe({
       next: (result: any) => {
@@ -47,6 +55,7 @@ export class HomeComponent implements OnInit {
     });
   }
 
+  /** Refreshes the product list based on current filters and page. */
   loadProducts(): void {
     this.loading = true;
     this.productService.getProducts(
@@ -73,8 +82,8 @@ export class HomeComponent implements OnInit {
     });
   }
 
+  /** Resets filters and loads sub-categories when a root category is chosen. */
   onCategoryChange(categoryId?: number): void {
-    console.log('Category Selection Changed:', categoryId);
     this.selectedCategoryId = categoryId;
     this.selectedSubCategoryId = undefined;
     this.selectedBrandId = undefined;
@@ -88,8 +97,8 @@ export class HomeComponent implements OnInit {
     this.loadProducts();
   }
 
+  /** Loads brands specific to the selected sub-category. */
   onSubCategoryChange(subCategoryId?: number): void {
-    console.log('SubCategory Selection Changed:', subCategoryId);
     this.selectedSubCategoryId = subCategoryId;
     this.selectedBrandId = undefined;
     this.brands = [];
@@ -101,8 +110,8 @@ export class HomeComponent implements OnInit {
     this.loadProducts();
   }
 
+  /** Filters view to products from a specific brand. */
   onBrandChange(brandId?: number): void {
-    console.log('Brand Selection Changed:', brandId);
     this.selectedBrandId = brandId;
     this.currentPage = 1;
     this.loadProducts();
@@ -112,7 +121,6 @@ export class HomeComponent implements OnInit {
     this.subCategoryService.getSubCategories(1, 100, categoryId).subscribe({
       next: (res: any) => {
         this.subCategories = Array.isArray(res) ? res : (res.items || []);
-        console.log('Loaded SubCategories:', this.subCategories);
       },
       error: (err) => console.error('Error loading subcategories', err)
     });
@@ -122,12 +130,12 @@ export class HomeComponent implements OnInit {
     this.brandService.getBrands(1, 100, subCategoryId).subscribe({
       next: (res: any) => {
         this.brands = Array.isArray(res) ? res : (res.items || []);
-        console.log('Loaded Brands:', this.brands);
       },
       error: (err) => console.error('Error loading brands', err)
     });
   }
 
+  /** Triggered by the pagination component. */
   changePage(page: number): void {
     if (page >= 1 && page <= this.totalPages) {
       this.currentPage = page;
@@ -135,6 +143,7 @@ export class HomeComponent implements OnInit {
     }
   }
 
+  /** Helper to resolve product image paths. */
   getImageUrl(product: Product): string {
     if (!product.imageUrl) return 'https://via.placeholder.com/300x200?text=No+Image';
     if (product.imageUrl.startsWith('http')) return product.imageUrl;

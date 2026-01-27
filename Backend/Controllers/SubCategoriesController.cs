@@ -8,6 +8,10 @@ using System.Linq.Expressions;
 
 namespace AnaECommerce.Backend.Controllers
 {
+    /// <summary>
+    /// API Controller for sub-category management.
+    /// Acts as the bridge between root Categories and individual Brands.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class SubCategoriesController : ControllerBase
@@ -21,45 +25,38 @@ namespace AnaECommerce.Backend.Controllers
             _mapper = mapper;
         }
 
+        /// <summary>Retrieves sub-categories with optional root-category filtering and keyword search.</summary>
         [HttpGet]
         public async Task<ActionResult<PaginatedResult<SubCategoryDto>>> GetSubCategories(
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 10,
-            [FromQuery] int? categoryId = null)
+            [FromQuery] int? categoryId = null,
+            [FromQuery] string? search = null)
         {
-            (IEnumerable<SubCategory> items, int totalCount) result;
+            Expression<Func<SubCategory, bool>> predicate = s => 
+                (!categoryId.HasValue || s.CategoryId == categoryId.Value) &&
+                (string.IsNullOrEmpty(search) || s.Name.Contains(search));
 
-            if (categoryId.HasValue)
-            {
-                result = await _unitOfWork.SubCategories.FindPagedAsync(
-                    s => s.CategoryId == categoryId.Value,
-                    pageNumber,
-                    pageSize,
-                    s => s.Category,
-                    s => s.Brands
-                );
-            }
-            else
-            {
-                result = await _unitOfWork.SubCategories.GetPagedAsync(
-                    pageNumber,
-                    pageSize,
-                    s => s.Category,
-                    s => s.Brands
-                );
-            }
+            var result = await _unitOfWork.SubCategories.FindPagedAsync(
+                predicate,
+                pageNumber,
+                pageSize,
+                s => s.Category,
+                s => s.Brands
+            );
 
-            var dtos = _mapper.Map<IEnumerable<SubCategoryDto>>(result.items);
+            var dtos = _mapper.Map<IEnumerable<SubCategoryDto>>(result.Items);
 
             return Ok(new PaginatedResult<SubCategoryDto>
             {
                 Items = dtos.ToList(),
                 PageNumber = pageNumber,
                 PageSize = pageSize,
-                TotalCount = result.totalCount
+                TotalCount = result.TotalCount
             });
         }
 
+        /// <summary>Gets high-level metadata for a single sub-category.</summary>
         [HttpGet("{id}")]
         public async Task<ActionResult<SubCategoryDto>> GetSubCategory(int id)
         {
@@ -69,6 +66,7 @@ namespace AnaECommerce.Backend.Controllers
             return Ok(_mapper.Map<SubCategoryDto>(subCategory));
         }
 
+        /// <summary>Registers a new sub-category. Admin/Manager roles only.</summary>
         [HttpPost]
         [Authorize(Roles = "Admin,Manager")]
         public async Task<ActionResult<SubCategoryDto>> CreateSubCategory(CreateSubCategoryDto createDto)
@@ -80,6 +78,7 @@ namespace AnaECommerce.Backend.Controllers
             return CreatedAtAction(nameof(GetSubCategory), new { id = subCategory.Id }, _mapper.Map<SubCategoryDto>(subCategory));
         }
 
+        /// <summary>Updates an existing sub-category's name or its parent Category link.</summary>
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin,Manager")]
         public async Task<ActionResult> UpdateSubCategory(int id, UpdateSubCategoryDto updateDto)
@@ -94,6 +93,7 @@ namespace AnaECommerce.Backend.Controllers
             return NoContent();
         }
 
+        /// <summary>Deletes a sub-category. Restricted to Admin role.</summary>
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> DeleteSubCategory(int id)

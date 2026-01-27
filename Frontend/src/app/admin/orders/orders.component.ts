@@ -1,6 +1,10 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { OrderService } from '../../core/services/order.service';
 import { Order, OrderStatus } from '../../core/models/ecommerce.models';
+import { PageEvent } from '@angular/material/paginator';
+import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
+import { OrderStatusFormComponent } from './order-status-form/order-status-form.component';
 
 @Component({
   selector: 'app-orders',
@@ -28,7 +32,10 @@ export class OrdersComponent implements OnInit {
     { value: OrderStatus.Cancelled, key: 'ADMIN.ORDERS.STATUSES.CANCELLED' }
   ];
 
-  constructor(private orderService: OrderService) { }
+  constructor(
+    private orderService: OrderService,
+    private dialog: MatDialog
+  ) { }
 
   ngOnInit(): void {
     this.loadOrders();
@@ -50,30 +57,49 @@ export class OrdersComponent implements OnInit {
     });
   }
 
-  updateStatus(order: Order, status: string): void {
-    const newStatus = parseInt(status);
-    if (isNaN(newStatus)) return;
+  onPageChange(event: PageEvent): void {
+    this.pageSize = event.pageSize;
+    this.currentPage = event.pageIndex + 1;
+    this.loadOrders();
+  }
 
-    this.orderService.updateOrderStatus(order.id, newStatus).subscribe({
-      next: () => {
-        // Optimistic update or reload
-        order.status = newStatus;
-        // Optional: show toast
-      },
-      error: (err) => {
-        console.error('Error updating status', err);
-        // Revert or show error
-        this.loadOrders();
+  openStatusForm(order: Order): void {
+    const dialogRef = this.dialog.open(OrderStatusFormComponent, {
+      width: '400px',
+      data: { status: order.status }
+    });
+
+    dialogRef.afterClosed().subscribe(newStatus => {
+      if (newStatus !== undefined && newStatus !== order.status) {
+        this.orderService.updateOrderStatus(order.id, newStatus).subscribe({
+          next: () => {
+            order.status = newStatus;
+          },
+          error: (err) => {
+            console.error('Error updating status', err);
+            this.loadOrders();
+          }
+        });
       }
     });
   }
 
   deleteOrder(id: number): void {
-    if (!confirm('Are you sure you want to delete this order?')) return;
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Delete Order',
+        message: 'Are you sure you want to delete this order?'
+      }
+    });
 
-    this.orderService.deleteOrder(id).subscribe({
-      next: () => this.loadOrders(),
-      error: (err) => console.error(err)
+    dialogRef.afterClosed().subscribe(confirm => {
+      if (confirm) {
+        this.orderService.deleteOrder(id).subscribe({
+          next: () => this.loadOrders(),
+          error: (err) => console.error(err)
+        });
+      }
     });
   }
 
@@ -90,11 +116,6 @@ export class OrdersComponent implements OnInit {
       case OrderStatus.Cancelled: return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
-  }
-
-  changePage(page: number): void {
-    this.currentPage = page;
-    this.loadOrders();
   }
 
   filterByStatus(statusTarget: any): void {

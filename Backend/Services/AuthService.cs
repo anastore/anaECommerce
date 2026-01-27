@@ -9,6 +9,10 @@ using System.Text;
 
 namespace AnaECommerce.Backend.Services
 {
+    /// <summary>
+    /// Core service for user authentication and authorization.
+    /// Manages account registration, password validation, and JWT generation.
+    /// </summary>
     public class AuthService : IAuthService
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -22,6 +26,10 @@ namespace AnaECommerce.Backend.Services
             _configuration = configuration;
         }
 
+        /// <summary>
+        /// Registers a new user with an optional initial address.
+        /// Logic: Validates email uniqueness, creates Identity record, assigns role, and saves profile info.
+        /// </summary>
         public async Task<(bool Success, string Message)> RegisterAsync(RegisterDto model)
         {
             var userExists = await _userManager.FindByEmailAsync(model.Email);
@@ -42,12 +50,13 @@ namespace AnaECommerce.Backend.Services
             if (!result.Succeeded)
                 return (false, "User creation failed! Please check password details and try again.");
 
+            // Self-healing role creation (Dev convenience)
             if (!await _roleManager.RoleExistsAsync(model.Role))
                 await _roleManager.CreateAsync(new IdentityRole(model.Role));
 
             await _userManager.AddToRoleAsync(user, model.Role);
 
-            // Add address if provided
+            // Add address if provided during registration
             if (!string.IsNullOrEmpty(model.Country) && !string.IsNullOrEmpty(model.StreetAddress))
             {
                 user.Addresses.Add(new Address
@@ -67,6 +76,10 @@ namespace AnaECommerce.Backend.Services
             return (true, "User created successfully!");
         }
 
+        /// <summary>
+        /// Validates user credentials and issues a signed JWT token if successful.
+        /// Claim Strategy: Includes NameIdentifier, Email, and all assigned Roles.
+        /// </summary>
         public async Task<(bool Success, string Message, string Token)> LoginAsync(LoginDto model)
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
@@ -96,6 +109,7 @@ namespace AnaECommerce.Backend.Services
             return (true, "Login successful", new JwtSecurityTokenHandler().WriteToken(token));
         }
 
+        /// <summary>Generates a JWT security token with the specified configuration (HmacSha256).</summary>
         private JwtSecurityToken GetToken(List<Claim> authClaims)
         {
             var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));

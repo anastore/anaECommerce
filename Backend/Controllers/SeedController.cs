@@ -6,6 +6,10 @@ using AnaECommerce.Backend.Interfaces;
 
 namespace AnaECommerce.Backend.Controllers
 {
+    /// <summary>
+    /// Utility Controller for populating the database with sample data.
+    /// Primarily used for development, testing, and system demonstrations.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class SeedController : ControllerBase
@@ -21,6 +25,7 @@ namespace AnaECommerce.Backend.Controllers
             _unitOfWork = unitOfWork;
         }
 
+        /// <summary>Creates base roles (Admin, Client, Manager) and several sample users.</summary>
         [HttpPost("users")]
         public async Task<IActionResult> SeedUsers()
         {
@@ -80,6 +85,7 @@ namespace AnaECommerce.Backend.Controllers
             return Ok(new { message = "Sample users created successfully", users = createdUsers });
         }
 
+        /// <summary>Creates the catalog hierarchy including Categories, Sub-Categories, and Brands.</summary>
         [HttpPost("categories")]
         public async Task<IActionResult> SeedCategories()
         {
@@ -164,6 +170,7 @@ namespace AnaECommerce.Backend.Controllers
             return Ok(new { message = $"{categories.Count} categories, {subCategories.Count} subcategories, and {brands.Count} brands created successfully" });
         }
 
+        /// <summary>Seeds a variety of products across all brands.</summary>
         [HttpPost("products")]
         public async Task<IActionResult> SeedProducts()
         {
@@ -221,6 +228,7 @@ namespace AnaECommerce.Backend.Controllers
             return Ok(new { message = $"{products.Count} products created successfully" });
         }
 
+        /// <summary>Generates 25 random historical orders with items and stock updates.</summary>
         [HttpPost("orders")]
         public async Task<IActionResult> SeedOrders()
         {

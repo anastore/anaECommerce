@@ -4,6 +4,10 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace AnaECommerce.Backend.Controllers
 {
+    /// <summary>
+    /// Utility API Controller for handling generic file and image uploads.
+    /// Provides validation for allowed file extensions and manages server-side storage.
+    /// </summary>
     [ApiController]
     [Route("api/upload")]
     public class UploadController : ControllerBase
@@ -15,6 +19,7 @@ namespace AnaECommerce.Backend.Controllers
             _environment = environment;
         }
 
+        /// <summary>Uploads an image (PNG/JPG/WEBP) for user profiles or other entities.</summary>
         [HttpPost("image")]
         [AllowAnonymous]
         public async Task<ActionResult> UploadImage(IFormFile file)
@@ -34,19 +39,21 @@ namespace AnaECommerce.Backend.Controllers
                     return BadRequest(new { message = "Invalid file type. Only images are allowed." });
                 }
 
+                // Reliability check for environment pathing
                 if (string.IsNullOrEmpty(_environment.WebRootPath))
                 {
-                     // Fallback to current directory if WebRootPath is not set (typical in some environments)
                     _environment.WebRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
                 }
 
                 var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads", "profile");
                 
+                // Safety: Create physical folder if it doesn't exist
                 if (!Directory.Exists(uploadsFolder))
                 {
                     Directory.CreateDirectory(uploadsFolder);
                 }
 
+                // Collision prevention: Generate unique Guid-based filename
                 var fileName = $"{Guid.NewGuid()}{extension}";
                 var filePath = Path.Combine(uploadsFolder, fileName);
 

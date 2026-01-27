@@ -44,6 +44,10 @@
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
         </table>
+
+        <app-pagination [length]="totalCount" [pageSize]="pageSize" [pageIndex]="pageNumber - 1"
+            (page)="onPageChange($event)">
+        </app-pagination>
     </div>
 
     <div *ngIf="loading" class="loading-spinner">

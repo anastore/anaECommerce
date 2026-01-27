@@ -6,6 +6,10 @@ using AnaECommerce.Backend.DTOs;
 
 namespace AnaECommerce.Backend.Controllers
 {
+    /// <summary>
+    /// API Controller for managing security roles.
+    /// Restricted to Admin users.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     [Authorize(Roles = "Admin")]
@@ -20,6 +24,7 @@ namespace AnaECommerce.Backend.Controllers
             _userManager = userManager;
         }
 
+        /// <summary>Lists all available roles and the number of users assigned to each.</summary>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<RoleDto>>> GetAllRoles()
         {
@@ -40,6 +45,7 @@ namespace AnaECommerce.Backend.Controllers
             return Ok(roleDtos);
         }
 
+        /// <summary>Registers a new security role in the system.</summary>
         [HttpPost]
         public async Task<ActionResult> CreateRole(CreateRoleDto createRoleDto)
         {
@@ -60,6 +66,7 @@ namespace AnaECommerce.Backend.Controllers
             return Ok(new { message = "Role created successfully", roleId = role.Id });
         }
 
+        /// <summary>Updates the name of an existing role.</summary>
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateRole(string id, CreateRoleDto updateRoleDto)
         {
@@ -81,6 +88,10 @@ namespace AnaECommerce.Backend.Controllers
             return Ok(new { message = "Role updated successfully" });
         }
 
+        /// <summary>
+        /// Deletes a role.
+        /// Business Rule: A role cannot be deleted if users are still assigned to it.
+        /// </summary>
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRole(string id)
         {
@@ -90,7 +101,7 @@ namespace AnaECommerce.Backend.Controllers
                 return NotFound(new { message = "Role not found" });
             }
 
-            // Check if any users have this role
+            // Safety check: verify no users are currently using this role
             var usersInRole = await _userManager.GetUsersInRoleAsync(role.Name ?? "");
             if (usersInRole.Any())
             {

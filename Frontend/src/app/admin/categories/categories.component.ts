@@ -1,7 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { CategoryService } from '../../core/services/category.service';
-import { Category, CreateCategoryDto } from '../../core/models/ecommerce.models';
+import { Category } from '../../core/models/ecommerce.models';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { PageEvent } from '@angular/material/paginator';
+import { CategoryFormComponent } from './category-form/category-form.component';
+import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-categories',
@@ -11,23 +16,26 @@ import { Category, CreateCategoryDto } from '../../core/models/ecommerce.models'
 export class CategoriesComponent implements OnInit {
   categories: Category[] = [];
   loading = true;
-  showForm = false;
-  categoryForm: FormGroup;
-  editingId: number | null = null;
 
-  // Pagination
+  // Pagination & Filtering
   currentPage = 1;
   pageSize = 10;
   totalCount = 0;
   totalPages = 0;
+  searchString = '';
+  private searchSubject = new Subject<string>();
 
   constructor(
     private categoryService: CategoryService,
-    private fb: FormBuilder
+    private dialog: MatDialog
   ) {
-    this.categoryForm = this.fb.group({
-      name: ['', [Validators.required, Validators.maxLength(100)]],
-      description: ['', [Validators.maxLength(500)]]
+    this.searchSubject.pipe(
+      debounceTime(500),
+      distinctUntilChanged()
+    ).subscribe(searchText => {
+      this.searchString = searchText;
+      this.currentPage = 1;
+      this.loadCategories();
     });
   }
 
@@ -37,7 +45,7 @@ export class CategoriesComponent implements OnInit {
 
   loadCategories(): void {
     this.loading = true;
-    this.categoryService.getCategories(this.currentPage, this.pageSize).subscribe({
+    this.categoryService.getCategories(this.currentPage, this.pageSize, this.searchString).subscribe({
       next: (result) => {
         this.categories = result.items;
         this.totalCount = result.totalCount;
@@ -51,65 +59,68 @@ export class CategoriesComponent implements OnInit {
     });
   }
 
+  onPageChange(event: PageEvent): void {
+    this.pageSize = event.pageSize;
+    this.currentPage = event.pageIndex + 1;
+    this.loadCategories();
+  }
+
+  applyFilter(event: Event): void {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.searchSubject.next(filterValue.trim());
+  }
+
   openCreateForm(): void {
-    this.editingId = null;
-    this.categoryForm.reset();
-    this.showForm = true;
-  }
-
-  openEditForm(category: Category): void {
-    this.editingId = category.id;
-    this.categoryForm.patchValue({
-      name: category.name,
-      description: category.description
+    const dialogRef = this.dialog.open(CategoryFormComponent, {
+      width: '500px',
+      data: { category: null }
     });
-    this.showForm = true;
-  }
 
-  cancelForm(): void {
-    this.showForm = false;
-    this.editingId = null;
-    this.categoryForm.reset();
-  }
-
-  onSubmit(): void {
-    if (this.categoryForm.invalid) return;
-
-    const dto: CreateCategoryDto = this.categoryForm.value;
-
-    if (this.editingId) {
-      this.categoryService.updateCategory(this.editingId, dto).subscribe({
-        next: () => {
-          this.loadCategories();
-          this.cancelForm();
-        },
-        error: (err) => console.error('Error updating category', err)
-      });
-    } else {
-      this.categoryService.createCategory(dto).subscribe({
-        next: () => {
-          this.loadCategories();
-          this.cancelForm();
-        },
-        error: (err) => console.error('Error creating category', err)
-      });
-    }
-  }
-
-  deleteCategory(id: number): void {
-    if (!confirm('Are you sure you want to delete this category?')) return;
-
-    this.categoryService.deleteCategory(id).subscribe({
-      next: () => this.loadCategories(),
-      error: (err) => {
-        alert('Cannot delete category. Even admin cannot delete category with products.');
-        console.error(err);
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.categoryService.createCategory(result).subscribe({
+          next: () => this.loadCategories(),
+          error: (err) => console.error('Error creating category', err)
+        });
       }
     });
   }
 
-  changePage(page: number): void {
-    this.currentPage = page;
-    this.loadCategories();
+  openEditForm(category: Category): void {
+    const dialogRef = this.dialog.open(CategoryFormComponent, {
+      width: '500px',
+      data: { category }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.categoryService.updateCategory(category.id, result).subscribe({
+          next: () => this.loadCategories(),
+          error: (err) => console.error('Error updating category', err)
+        });
+      }
+    });
+  }
+
+  deleteCategory(id: number): void {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Delete Category',
+        message: 'Are you sure you want to delete this category? This action cannot be undone.'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(confirm => {
+      if (confirm) {
+        this.categoryService.deleteCategory(id).subscribe({
+          next: () => this.loadCategories(),
+          error: (err) => {
+            alert('Cannot delete category. Even admin cannot delete category with products.');
+            console.error(err);
+          }
+        });
+      }
+    });
   }
 }

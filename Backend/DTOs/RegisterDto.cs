@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AnaECommerce.Backend.DTOs
 {
+    /// <summary>Request DTO for creating a new user account with optional profile details.</summary>
     public class RegisterDto
     {
         [Required]
@@ -14,9 +15,10 @@ namespace AnaECommerce.Backend.DTOs
         [Required]
         public string Password { get; set; } = string.Empty;
 
+        /// <summary>Initial role to assign (defaults to 'Client').</summary>
         public string Role { get; set; } = "Client";
 
-        // Optional address for onboarding flow
+        // Optional onboarding details
         public string? Country { get; set; }
         public string? State { get; set; }
         public string? City { get; set; }

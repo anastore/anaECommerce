@@ -1,8 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { SubCategoryService, SubCategory } from '../../services/sub-category.service';
 import { CategoryService } from '../../core/services/category.service';
 import { Category } from '../../core/models/ecommerce.models';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { PageEvent } from '@angular/material/paginator';
+import { SubCategoryFormComponent } from './sub-category-form/sub-category-form.component';
+import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
     selector: 'app-sub-categories',
@@ -13,25 +18,27 @@ export class SubCategoriesComponent implements OnInit {
     subCategories: SubCategory[] = [];
     categories: Category[] = [];
     loading = true;
-    showForm = false;
-    subCategoryForm: FormGroup;
-    editingId: number | null = null;
 
-    // Pagination
+    // Pagination & Filtering
     currentPage = 1;
     pageSize = 10;
     totalCount = 0;
     totalPages = 0;
+    searchString = '';
+    private searchSubject = new Subject<string>();
 
     constructor(
         private subCategoryService: SubCategoryService,
         private categoryService: CategoryService,
-        private fb: FormBuilder
+        private dialog: MatDialog
     ) {
-        this.subCategoryForm = this.fb.group({
-            name: ['', [Validators.required, Validators.maxLength(100)]],
-            description: ['', [Validators.maxLength(500)]],
-            categoryId: [null, [Validators.required]]
+        this.searchSubject.pipe(
+            debounceTime(500),
+            distinctUntilChanged()
+        ).subscribe(searchText => {
+            this.searchString = searchText;
+            this.currentPage = 1;
+            this.loadSubCategories();
         });
     }
 
@@ -41,11 +48,9 @@ export class SubCategoriesComponent implements OnInit {
     }
 
     loadCategories(): void {
-        // Load all categories for the dropdown (assuming < 100 for now, or we could paginate dropdown)
         this.categoryService.getCategories(1, 100).subscribe({
-            next: (result: any) => {
-                this.categories = Array.isArray(result) ? result : (result.items || []);
-                console.log('Loaded categories:', this.categories);
+            next: (result) => {
+                this.categories = result.items || [];
             },
             error: (err) => console.error('Error loading categories', err)
         });
@@ -53,21 +58,12 @@ export class SubCategoriesComponent implements OnInit {
 
     loadSubCategories(): void {
         this.loading = true;
-        this.subCategoryService.getSubCategories(this.currentPage, this.pageSize).subscribe({
-            next: (result: any) => {
-                // Defensive check: if result is array (legacy/stale backend), handle it.
-                if (Array.isArray(result)) {
-                    this.subCategories = result;
-                    this.totalCount = result.length;
-                    this.totalPages = 1;
-                } else {
-                    // Correct PaginatedResult
-                    this.subCategories = result.items || [];
-                    this.totalCount = result.totalCount;
-                    this.totalPages = result.totalPages;
-                }
+        this.subCategoryService.getSubCategories(this.currentPage, this.pageSize, undefined, this.searchString).subscribe({
+            next: (result) => {
+                this.subCategories = result.items || [];
+                this.totalCount = result.totalCount;
+                this.totalPages = result.totalPages;
                 this.loading = false;
-                console.log('Loaded subCategories:', this.subCategories);
             },
             error: (err) => {
                 console.error('Error loading subcategories', err);
@@ -76,71 +72,72 @@ export class SubCategoriesComponent implements OnInit {
         });
     }
 
+    onPageChange(event: PageEvent): void {
+        this.pageSize = event.pageSize;
+        this.currentPage = event.pageIndex + 1;
+        this.loadSubCategories();
+    }
+
+    applyFilter(event: Event): void {
+        const filterValue = (event.target as HTMLInputElement).value;
+        this.searchSubject.next(filterValue.trim());
+    }
+
     openCreateForm(): void {
-        this.editingId = null;
-        this.subCategoryForm.reset();
-        this.showForm = true;
-    }
-
-    openEditForm(subCategory: SubCategory): void {
-        this.editingId = subCategory.id;
-        this.subCategoryForm.patchValue({
-            name: subCategory.name,
-            description: subCategory.description,
-            categoryId: subCategory.categoryId
+        const dialogRef = this.dialog.open(SubCategoryFormComponent, {
+            width: '500px',
+            data: { subCategory: null, categories: this.categories }
         });
-        this.showForm = true;
-    }
 
-    cancelForm(): void {
-        this.showForm = false;
-        this.editingId = null;
-        this.subCategoryForm.reset();
-    }
-
-    onSubmit(): void {
-        if (this.subCategoryForm.invalid) return;
-
-        const dto = this.subCategoryForm.value;
-
-        if (this.editingId) {
-            this.subCategoryService.updateSubCategory(this.editingId, dto).subscribe({
-                next: () => {
-                    this.loadSubCategories();
-                    this.cancelForm();
-                },
-                error: (err) => console.error('Error updating subcategory', err)
-            });
-        } else {
-            this.subCategoryService.createSubCategory(dto).subscribe({
-                next: () => {
-                    this.loadSubCategories();
-                    this.cancelForm();
-                },
-                error: (err) => console.error('Error creating subcategory', err)
-            });
-        }
-    }
-
-    deleteSubCategory(id: number): void {
-        if (!confirm('Are you sure you want to delete this subcategory?')) return;
-
-        this.subCategoryService.deleteSubCategory(id).subscribe({
-            next: () => this.loadSubCategories(),
-            error: (err) => {
-                alert('Cannot delete subcategory. Ensure it has no brands associated.');
-                console.error(err);
+        dialogRef.afterClosed().subscribe(result => {
+            if (result) {
+                this.subCategoryService.createSubCategory(result).subscribe({
+                    next: () => this.loadSubCategories(),
+                    error: (err) => console.error('Error creating subcategory', err)
+                });
             }
         });
     }
 
-    changePage(page: number): void {
-        this.currentPage = page;
-        this.loadSubCategories();
+    openEditForm(subCategory: SubCategory): void {
+        const dialogRef = this.dialog.open(SubCategoryFormComponent, {
+            width: '500px',
+            data: { subCategory, categories: this.categories }
+        });
+
+        dialogRef.afterClosed().subscribe(result => {
+            if (result) {
+                this.subCategoryService.updateSubCategory(subCategory.id, result).subscribe({
+                    next: () => this.loadSubCategories(),
+                    error: (err) => console.error('Error updating subcategory', err)
+                });
+            }
+        });
+    }
+
+    deleteSubCategory(id: number): void {
+        const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+            width: '400px',
+            data: {
+                title: 'Delete SubCategory',
+                message: 'Are you sure you want to delete this subcategory?'
+            }
+        });
+
+        dialogRef.afterClosed().subscribe(confirm => {
+            if (confirm) {
+                this.subCategoryService.deleteSubCategory(id).subscribe({
+                    next: () => this.loadSubCategories(),
+                    error: (err) => {
+                        alert('Cannot delete subcategory. Ensure it has no brands associated.');
+                        console.error(err);
+                    }
+                });
+            }
+        });
     }
 
     getCategoryName(categoryId: number): string {
-        if (!this.categories) return 'Unknown';
         const category = this.categories.find(c => c.id === categoryId);
         return category ? category.name : 'Unknown';
     }

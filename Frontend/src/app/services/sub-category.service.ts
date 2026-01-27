@@ -30,7 +30,7 @@ export class SubCategoryService {
 
     constructor(private http: HttpClient) { }
 
-    getSubCategories(pageNumber: number = 1, pageSize: number = 10, categoryId?: number): Observable<PaginatedResult<SubCategory>> {
+    getSubCategories(pageNumber: number = 1, pageSize: number = 10, categoryId?: number, search?: string): Observable<PaginatedResult<SubCategory>> {
         let params = new HttpParams()
             .set('pageNumber', pageNumber.toString())
             .set('pageSize', pageSize.toString());
@@ -38,9 +38,11 @@ export class SubCategoryService {
         if (categoryId) {
             params = params.set('categoryId', categoryId.toString());
         }
-        console.log(params);
-        console.log(this.apiUrl);
-        console.log(this.http.get<PaginatedResult<SubCategory>>(this.apiUrl, { params }));
+
+        if (search) {
+            params = params.set('search', search);
+        }
+
         return this.http.get<PaginatedResult<SubCategory>>(this.apiUrl, { params });
     }
 

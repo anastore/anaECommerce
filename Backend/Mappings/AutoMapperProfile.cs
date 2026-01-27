@@ -4,6 +4,11 @@ using AnaECommerce.Backend.DTOs;
 
 namespace AnaECommerce.Backend.Mappings
 {
+    /// <summary>
+    /// Configuration profile for AutoMapper.
+    /// Defines object-to-object mapping rules to transform domain models into optimized DTOs for client delivery.
+    /// Handles complex scenarios like property flattening across hierarchical entities.
+    /// </summary>
     public class AutoMapperProfile : Profile
     {
         public AutoMapperProfile()
@@ -16,6 +21,7 @@ namespace AnaECommerce.Backend.Mappings
 
             // SubCategory mappings
             CreateMap<SubCategory, SubCategoryDto>()
+                // Safely extract parent category name
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : string.Empty))
                 .ForMember(dest => dest.BrandCount, opt => opt.MapFrom(src => src.Brands.Count));
             CreateMap<CreateSubCategoryDto, SubCategory>();
@@ -23,6 +29,7 @@ namespace AnaECommerce.Backend.Mappings
 
             // Brand mappings
             CreateMap<Brand, BrandDto>()
+                // Flattening: map deep hierarchical property (Category Name) directly to DTO field
                 .ForMember(dest => dest.SubCategoryName, opt => opt.MapFrom(src => src.SubCategory != null ? src.SubCategory.Name : string.Empty))
                 .ForMember(dest => dest.CategoryId, opt => opt.MapFrom(src => src.SubCategory != null ? src.SubCategory.CategoryId : 0))
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.SubCategory != null && src.SubCategory.Category != null ? src.SubCategory.Category.Name : string.Empty))
@@ -32,6 +39,7 @@ namespace AnaECommerce.Backend.Mappings
 
             // Product mappings
             CreateMap<Product, ProductDto>()
+                // Flattening: Traverse the Brand -> SubCategory -> Category tree for easy UI consumption
                 .ForMember(dest => dest.BrandName, opt => opt.MapFrom(src => src.Brand != null ? src.Brand.Name : string.Empty))
                 .ForMember(dest => dest.SubCategoryId, opt => opt.MapFrom(src => src.Brand != null ? src.Brand.SubCategoryId : 0))
                 .ForMember(dest => dest.SubCategoryName, opt => opt.MapFrom(src => src.Brand != null && src.Brand.SubCategory != null ? src.Brand.SubCategory.Name : string.Empty))

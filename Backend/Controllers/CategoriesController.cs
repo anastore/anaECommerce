@@ -8,6 +8,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AnaECommerce.Backend.Controllers
 {
+    /// <summary>
+    /// API Controller for managing top-level product categories.
+    /// Restricted to Admin users for write operations.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     [Authorize(Roles = "Admin")]
@@ -22,13 +26,19 @@ namespace AnaECommerce.Backend.Controllers
             _mapper = mapper;
         }
 
+        /// <summary>Retrieves a paginated and optionally filtered list of categories.</summary>
+        /// <param name="pageNumber">The 1-based page index.</param>
+        /// <param name="pageSize">Number of items per page.</param>
+        /// <param name="search">Optional keyword to filter categories by name or description.</param>
         [HttpGet]
         [AllowAnonymous]
         public async Task<ActionResult<PaginatedResult<CategoryDto>>> GetCategories(
             [FromQuery] int pageNumber = 1,
-            [FromQuery] int pageSize = 10)
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? search = null)
         {
-            var (categories, totalCount) = await _unitOfWork.Categories.GetPagedAsync(
+            var (categories, totalCount) = await _unitOfWork.Categories.FindPagedAsync(
+                c => string.IsNullOrEmpty(search) || c.Name.Contains(search) || (c.Description != null && c.Description.Contains(search)),
                 pageNumber, 
                 pageSize,
                 c => c.SubCategories
@@ -45,6 +55,7 @@ namespace AnaECommerce.Backend.Controllers
             });
         }
 
+        /// <summary>Gets a specific category by its unique ID.</summary>
         [HttpGet("{id}")]
         [AllowAnonymous]
         public async Task<ActionResult<CategoryDto>> GetCategory(int id)
@@ -61,6 +72,7 @@ namespace AnaECommerce.Backend.Controllers
             return Ok(categoryDto);
         }
 
+        /// <summary>Creates a new product category.</summary>
         [HttpPost]
         public async Task<ActionResult> CreateCategory(CreateCategoryDto createDto)
         {
@@ -72,6 +84,7 @@ namespace AnaECommerce.Backend.Controllers
                 new { message = "Category created successfully", id = category.Id });
         }
 
+        /// <summary>Updates the name or description of an existing category.</summary>
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdateCategory(int id, UpdateCategoryDto updateDto)
         {
@@ -90,6 +103,10 @@ namespace AnaECommerce.Backend.Controllers
             return Ok(new { message = "Category updated successfully" });
         }
 
+        /// <summary>
+        /// Deletes a category. 
+        /// Business Rule: A category cannot be deleted if it still has associated sub-categories.
+        /// </summary>
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteCategory(int id)
         {
@@ -99,7 +116,7 @@ namespace AnaECommerce.Backend.Controllers
                 return NotFound(new { message = "Category not found" });
             }
 
-            // Check if category has subcategories
+            // Check if category has subcategories (Safety Check)
             if (category.SubCategories != null && category.SubCategories.Any())
             {
                 return BadRequest(new { message = "Cannot delete category with associated subcategories. Please delete subcategories first." });

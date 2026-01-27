@@ -8,6 +8,10 @@ using System.Linq.Expressions;
 
 namespace AnaECommerce.Backend.Controllers
 {
+    /// <summary>
+    /// API Controller for product management.
+    /// Handles catalog browsing (anonymous) and product administration (restricted).
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class ProductsController : ControllerBase
@@ -23,6 +27,10 @@ namespace AnaECommerce.Backend.Controllers
             _environment = environment;
         }
 
+        /// <summary>
+        /// Retrieves products with advanced filtering and pagination. 
+        /// Supports filtering by brand, category, sub-category, and keyword search.
+        /// </summary>
         [HttpGet]
         [AllowAnonymous]
         public async Task<ActionResult<PaginatedResult<ProductDto>>> GetProducts(
@@ -33,14 +41,14 @@ namespace AnaECommerce.Backend.Controllers
             [FromQuery] int? categoryId = null,
             [FromQuery] string? search = null)
         {
-            // Build the filter expression
+            // Build the filter expression dynamically based on provided query parameters
             Expression<Func<Product, bool>> predicate = p => 
                 (!brandId.HasValue || p.BrandId == brandId.Value) &&
                 (!subCategoryId.HasValue || p.Brand.SubCategoryId == subCategoryId.Value) &&
                 (!categoryId.HasValue || p.Brand.SubCategory.CategoryId == categoryId.Value) &&
                 (string.IsNullOrEmpty(search) || p.Name.Contains(search));
 
-            // Use the repository method with eager loading
+            // Use the repository method with eager loading of navigation tree
             var (products, totalCount) = await _unitOfWork.Products.FindPagedAsync(
                 predicate, 
                 pageNumber, 
@@ -59,6 +67,7 @@ namespace AnaECommerce.Backend.Controllers
             });
         }
 
+        /// <summary>Gets a single product by its unique ID.</summary>
         [HttpGet("{id}")]
         [AllowAnonymous]
         public async Task<ActionResult<ProductDto>> GetProduct(int id)
@@ -72,6 +81,7 @@ namespace AnaECommerce.Backend.Controllers
             return Ok(_mapper.Map<ProductDto>(product));
         }
 
+        /// <summary>Creates a new product record. Admin/Manager roles only.</summary>
         [HttpPost]
         [Authorize(Roles = "Admin,Manager")]
         public async Task<ActionResult> CreateProduct(CreateProductDto createDto)
@@ -84,6 +94,7 @@ namespace AnaECommerce.Backend.Controllers
                 new { message = "Product created successfully", id = product.Id });
         }
 
+        /// <summary>Updates an existing product's details. Admin/Manager roles only.</summary>
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin,Manager")]
         public async Task<ActionResult> UpdateProduct(int id, UpdateProductDto updateDto)
@@ -107,6 +118,7 @@ namespace AnaECommerce.Backend.Controllers
             return Ok(new { message = "Product updated successfully" });
         }
 
+        /// <summary>Deletes a product (Soft Delete). Restricted to Admin role.</summary>
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> DeleteProduct(int id)
@@ -123,6 +135,10 @@ namespace AnaECommerce.Backend.Controllers
             return Ok(new { message = "Product deleted successfully" });
         }
 
+        /// <summary>
+        /// Uploads an image file to the server and returns its relative path. 
+        /// Restricted to Admin/Manager roles.
+        /// </summary>
         [HttpPost("upload-image")]
         [Authorize(Roles = "Admin,Manager")]
         public async Task<ActionResult> UploadImage(IFormFile file)
@@ -140,8 +156,13 @@ namespace AnaECommerce.Backend.Controllers
                 return BadRequest(new { message = "Invalid file type. Only images are allowed." });
             }
 
+            // Generate unique filename to avoid collisions
             var fileName = $"{Guid.NewGuid()}{extension}";
             var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads", "products");
+            
+            // Ensure directory exists
+            if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+
             var filePath = Path.Combine(uploadsFolder, fileName);
 
             using (var stream = new FileStream(filePath, FileMode.Create))
