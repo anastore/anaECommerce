@@ -141,7 +141,7 @@ namespace AnaECommerce.Backend.Controllers
         /// </summary>
         [HttpPost("upload-image")]
         [Authorize(Roles = "Admin,Manager")]
-        public async Task<ActionResult> UploadImage(IFormFile file)
+        public async Task<ActionResult> UploadImage([FromForm] IFormFile file)
         {
             if (file == null || file.Length == 0)
             {

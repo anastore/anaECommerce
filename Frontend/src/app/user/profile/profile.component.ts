@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ProfileService, UserProfile, Address } from '../../core/services/profile.service';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { environment } from '../../../environments/environment';
 
 @Component({
     selector: 'app-profile',
@@ -34,6 +35,7 @@ export class ProfileComponent implements OnInit {
             fullName: ['', Validators.required],
             countryCode: ['+20'],
             phoneNumber: [''],
+            profilePictureUrl: [''],
             birthDate: [''],
             gender: ['']
         });
@@ -52,6 +54,12 @@ export class ProfileComponent implements OnInit {
         this.loadProfile();
     }
 
+    getImageUrl(url?: string): string {
+        if (!url) return 'assets/images/default-avatar.png';
+        if (url.startsWith('http')) return url;
+        return `${environment.imageBaseUrl}${url}`;
+    }
+
     loadProfile() {
         this.loading = true;
         this.profileService.getProfile().subscribe({
@@ -61,7 +69,7 @@ export class ProfileComponent implements OnInit {
                 let detectedCode = '+20';
                 let detectedNumber = profile.phoneNumber || '';
 
-                const matched = this.countryCodes.find(c => profile.phoneNumber?.startsWith(c.code));
+                const matched = this.countryCodes.find((c: any) => profile.phoneNumber?.startsWith(c.code));
                 if (matched) {
                     detectedCode = matched.code;
                     detectedNumber = profile.phoneNumber.substring(matched.code.length);
@@ -71,6 +79,7 @@ export class ProfileComponent implements OnInit {
                     fullName: profile.fullName,
                     countryCode: detectedCode,
                     phoneNumber: detectedNumber,
+                    profilePictureUrl: profile.profilePictureUrl,
                     birthDate: profile.birthDate,
                     gender: profile.gender
                 });
@@ -114,7 +123,7 @@ export class ProfileComponent implements OnInit {
                     });
                 },
                 error: (err) => {
-                    this.snackBar.open('Upload failed: ' + err, 'Close', { duration: 3000 });
+                    this.snackBar.open('Upload failed', 'Close', { duration: 3000 });
                 }
             });
         }
@@ -134,7 +143,7 @@ export class ProfileComponent implements OnInit {
                     this.isEditMode = false;
                     this.loadProfile();
                 },
-                error: () => {
+                error: (err) => {
                     this.snackBar.open('Error updating profile', 'Close', { duration: 3000 });
                 }
             });

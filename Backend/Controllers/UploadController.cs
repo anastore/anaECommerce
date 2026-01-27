@@ -13,21 +13,26 @@ namespace AnaECommerce.Backend.Controllers
     public class UploadController : ControllerBase
     {
         private readonly IWebHostEnvironment _environment;
+        private readonly ILogger<UploadController> _logger;
 
-        public UploadController(IWebHostEnvironment environment)
+        public UploadController(IWebHostEnvironment environment, ILogger<UploadController> logger)
         {
             _environment = environment;
+            _logger = logger;
         }
 
         /// <summary>Uploads an image (PNG/JPG/WEBP) for user profiles or other entities.</summary>
         [HttpPost("image")]
         [AllowAnonymous]
-        public async Task<ActionResult> UploadImage(IFormFile file)
+        public async Task<ActionResult> UploadImage([FromForm] IFormFile file)
         {
             try 
             {
+                _logger.LogInformation("Received upload request. File exists: {Exists}, Length: {Length}", file != null, file?.Length ?? 0);
+
                 if (file == null || file.Length == 0)
                 {
+                    _logger.LogWarning("Upload attempt with null or empty file.");
                     return BadRequest(new { message = "No file uploaded" });
                 }
 
@@ -36,12 +41,14 @@ namespace AnaECommerce.Backend.Controllers
 
                 if (!allowedExtensions.Contains(extension))
                 {
+                    _logger.LogWarning("Invalid file extension: {Extension}", extension);
                     return BadRequest(new { message = "Invalid file type. Only images are allowed." });
                 }
 
                 // Reliability check for environment pathing
                 if (string.IsNullOrEmpty(_environment.WebRootPath))
                 {
+                    _logger.LogInformation("WebRootPath is null, using fallback.");
                     _environment.WebRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
                 }
 
@@ -50,6 +57,7 @@ namespace AnaECommerce.Backend.Controllers
                 // Safety: Create physical folder if it doesn't exist
                 if (!Directory.Exists(uploadsFolder))
                 {
+                    _logger.LogInformation("Creating directory: {Path}", uploadsFolder);
                     Directory.CreateDirectory(uploadsFolder);
                 }
 
@@ -57,16 +65,21 @@ namespace AnaECommerce.Backend.Controllers
                 var fileName = $"{Guid.NewGuid()}{extension}";
                 var filePath = Path.Combine(uploadsFolder, fileName);
 
+                _logger.LogInformation("Saving file to: {Path}", filePath);
+
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await file.CopyToAsync(stream);
                 }
 
                 var imageUrl = $"/uploads/profile/{fileName}";
+                _logger.LogInformation("Upload successful. Image URL: {Url}", imageUrl);
+                
                 return Ok(new { imageUrl });
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Internal error during file upload.");
                 return StatusCode(500, new { message = "Internal server error during upload", details = ex.Message });
             }
         }

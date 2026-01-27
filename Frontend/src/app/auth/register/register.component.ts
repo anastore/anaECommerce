@@ -4,6 +4,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { Router } from '@angular/router';
 
 import { ProfileService } from '../../core/services/profile.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
     selector: 'app-register',
@@ -17,6 +18,12 @@ export class RegisterComponent {
     loading = false;
     imagePreview: string | null = null;
     selectedFile: File | null = null;
+
+    getImageUrl(url?: string | null): string {
+        if (!url) return 'assets/images/default-avatar.png';
+        if (url.startsWith('http') || url.startsWith('data:')) return url;
+        return `${environment.imageBaseUrl}${url}`;
+    }
 
     countryCodes = [
         { code: '+20', name: 'Egypt', flag: '🇪🇬' },
@@ -88,8 +95,8 @@ export class RegisterComponent {
                     error: (err) => {
                         this.loading = false;
                         console.error('Upload failed:', err);
-                        alert('Upload failed, but proceeding with registration...');
-                        this.completeRegistration();
+                        alert('Critical Error: Profile picture upload failed. Registration aborted. Please try again with a different image or contact support.');
+                        // DO NOT call completeRegistration() here to satisfy "No silent failures" rule
                     }
                 });
             } else {
